@@ -1,0 +1,274 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../layouts/Layout.astro';
+import ParticleField from '../components/ParticleField.astro';
+
+const posts = (await getCollection('blog'))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .slice(0, 3);
+
+const fmt = (d: Date) =>
+  d.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
+
+const photos = [
+  { src: '/images/gallery/mountain.jpg', title: '川西 · 日照金山' },
+  { src: '/images/gallery/milkyway.jpg', title: '银河之下' },
+  { src: '/images/gallery/city.jpg', title: '城市夜行' },
+  { src: '/images/gallery/sea.jpg', title: '海边黄昏' },
+];
+
+const marqueeItems = ['写作', '摄影', '代码', '旅行', '阅读', '生活', '思考', '记录'];
+
+const gardenStart = new Date('2026-09-01');
+const runningDays = Math.max(
+  1,
+  Math.ceil((Date.now() - gardenStart.getTime()) / 86400000)
+);
+
+const stats = [
+  { value: posts.length + 12, label: '篇文章', suffix: '' },
+  { value: 18, label: '张照片', suffix: '+' },
+  { value: runningDays, label: '天持续生长', suffix: '' },
+];
+---
+
+<Layout>
+  <!-- ================= Hero ================= -->
+  <section class="relative flex min-h-screen items-center justify-center overflow-hidden">
+    <div class="aurora-blob blob-1"></div>
+    <div class="aurora-blob blob-2"></div>
+    <div class="aurora-blob blob-3"></div>
+    <ParticleField />
+
+    <div class="relative z-10 px-6 text-center">
+      <div class="glass reveal inline-flex items-center gap-2.5 rounded-full px-4 py-1.5 text-sm text-zinc-300">
+        <span class="relative flex h-2 w-2">
+          <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60"></span>
+          <span class="relative inline-flex h-2 w-2 rounded-full bg-emerald-400"></span>
+        </span>
+        欢迎来到我的数字花园
+      </div>
+
+      <h1 class="reveal mt-8 font-serif text-5xl font-bold leading-tight text-white md:text-7xl" style="--d:.1s">
+        记录<span class="text-gradient">光影</span>，<br class="md:hidden" />书写<span class="text-gradient">生活</span>
+      </h1>
+
+      <p class="reveal mt-7 text-lg text-zinc-400" style="--d:.2s">
+        这里是 <span class="text-zinc-200">Zhou</span> 的数字花园 ——
+        <span id="typing" class="text-cyan-300"></span><span class="caret">|</span>
+      </p>
+
+      <div class="reveal mt-10 flex flex-wrap items-center justify-center gap-4" style="--d:.3s">
+        <a href="/blog" class="btn-primary">开始阅读</a>
+        <a href="/gallery" class="btn-ghost">看看影像</a>
+      </div>
+
+      <div class="reveal mt-16 flex items-center justify-center gap-12" style="--d:.45s">
+        {
+          stats.map((s) => (
+            <div class="text-center">
+              <p class="text-3xl font-bold text-white">
+                <span data-counter={s.value}>0</span>{s.suffix}
+              </p>
+              <p class="mt-1 text-xs text-zinc-500">{s.label}</p>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+
+    <div class="scroll-hint" aria-hidden="true"></div>
+  </section>
+
+  <!-- ================= 跑马灯 ================= -->
+  <section class="marquee border-y border-white/5 bg-white/[0.02] py-5" aria-hidden="true">
+    <div class="marquee-track text-lg text-zinc-500">
+      {
+        [0, 1].map(() => (
+          <div class="flex shrink-0 items-center gap-12 pr-12">
+            {marqueeItems.map((item) => (
+              <>
+                <span class="transition-colors hover:text-zinc-200">{item}</span>
+                <span class="text-xs text-violet-400/60">✦</span>
+              </>
+            ))}
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  <!-- ================= 最新文章 ================= -->
+  <section class="mx-auto max-w-6xl px-6 py-24">
+    <div class="flex items-end justify-between">
+      <div>
+        <p class="reveal text-sm font-semibold tracking-[0.3em] text-violet-300">BLOG</p>
+        <h2 class="reveal mt-3 font-serif text-3xl font-bold text-white md:text-4xl" style="--d:.05s">
+          最新<span class="text-gradient">文章</span>
+        </h2>
+      </div>
+      <a href="/blog" class="reveal group hidden items-center gap-1.5 text-sm text-zinc-400 transition-colors hover:text-cyan-300 md:flex" style="--d:.1s">
+        查看全部 <span class="transition-transform duration-300 group-hover:translate-x-1">→</span>
+      </a>
+    </div>
+
+    <div class="mt-12 grid gap-6 md:grid-cols-3">
+      {
+        posts.map((post, i) => (
+          <a
+            href={`/blog/${post.id}/`}
+            class="tilt-card reveal glass group block overflow-hidden rounded-2xl"
+            data-tilt="6"
+            style={`--d:${i * 0.1}s`}
+          >
+            <div class="overflow-hidden">
+              {post.data.cover && (
+                <img
+                  src={post.data.cover}
+                  alt={post.data.title}
+                  class="aspect-[16/9] w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  width="800"
+                  height="450"
+                  loading="lazy"
+                />
+              )}
+            </div>
+            <div class="p-6">
+              <p class="font-mono text-xs text-zinc-500">{fmt(post.data.pubDate)}</p>
+              <h3 class="mt-2 font-serif text-lg font-bold text-white transition-colors duration-300 group-hover:text-cyan-300">
+                {post.data.title}
+              </h3>
+              <p class="mt-2 line-clamp-2 text-sm leading-relaxed text-zinc-400">
+                {post.data.description}
+              </p>
+              <div class="mt-4 flex flex-wrap gap-2">
+                {post.data.tags.map((t) => (
+                  <span class="tag">{t}</span>
+                ))}
+              </div>
+            </div>
+          </a>
+        ))
+      }
+    </div>
+  </section>
+
+  <!-- ================= 影像速览 ================= -->
+  <section class="border-y border-white/5 bg-white/[0.015]">
+    <div class="mx-auto max-w-6xl px-6 py-24">
+      <div class="flex items-end justify-between">
+        <div>
+          <p class="reveal text-sm font-semibold tracking-[0.3em] text-pink-400">GALLERY</p>
+          <h2 class="reveal mt-3 font-serif text-3xl font-bold text-white md:text-4xl" style="--d:.05s">
+            影像<span class="text-gradient">速览</span>
+          </h2>
+        </div>
+        <a href="/gallery" class="reveal group hidden items-center gap-1.5 text-sm text-zinc-400 transition-colors hover:text-cyan-300 md:flex" style="--d:.1s">
+          进入影像馆 <span class="transition-transform duration-300 group-hover:translate-x-1">→</span>
+        </a>
+      </div>
+
+      <div class="mt-12 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        {
+          photos.map((p, i) => (
+            <a
+              href="/gallery"
+              class="reveal group relative block overflow-hidden rounded-2xl"
+              style={`--d:${i * 0.08}s`}
+            >
+              <img
+                src={p.src}
+                alt={p.title}
+                class="aspect-[3/4] w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                loading="lazy"
+              />
+              <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+              <p class="absolute inset-x-0 bottom-0 translate-y-2 p-4 font-serif text-sm font-bold text-white opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100">
+                {p.title}
+              </p>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 关于 ================= -->
+  <section class="mx-auto max-w-6xl px-6 py-24" id="about">
+    <div class="glass reveal rounded-3xl p-8 md:p-14">
+      <div class="flex flex-col items-center gap-10 md:flex-row md:items-start">
+        <div class="relative shrink-0" style="animation: float-y 7s ease-in-out infinite">
+          <div class="absolute inset-0 rounded-full bg-gradient-to-br from-violet-500 to-cyan-400 opacity-40 blur-xl"></div>
+          <div class="relative h-28 w-28 rounded-full bg-gradient-to-br from-violet-500 to-cyan-400 p-[3px]">
+            <div class="flex h-full w-full items-center justify-center rounded-full bg-[#12121f] font-serif text-4xl font-bold text-white">
+              周
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center md:text-left">
+          <h2 class="font-serif text-3xl font-bold text-white">
+            你好，我是 <span class="text-gradient">Zhou</span>
+          </h2>
+          <p class="mt-4 max-w-2xl leading-relaxed text-zinc-400">
+            一个相信记录的力量的人。白天写代码，周末背相机，偶尔在深夜胡思乱想。
+            这个花园里种着我读过的书、走过的路、和还在生长中的想法——
+            不追求完美，只希望每年回头翻看时，能看到自己认真活过的痕迹。
+          </p>
+          <div class="mt-6 flex flex-wrap justify-center gap-2.5 md:justify-start">
+            {['写作', '摄影', '学习笔记', '生活记录', '偶尔发呆'].map((t) => (
+              <span class="tag">{t}</span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    // 打字机效果
+    const typingEl = document.getElementById('typing')!;
+    const phrases = ['写一点所思所想', '定格光影瞬间', '记录学习与生活', '把日子过成作品'];
+    let pi = 0;
+    let ci = 0;
+    let deleting = false;
+    const tick = () => {
+      const cur = phrases[pi]!;
+      ci += deleting ? -1 : 1;
+      typingEl.textContent = cur.slice(0, ci);
+      let delay = deleting ? 45 : 110;
+      if (!deleting && ci === cur.length) {
+        delay = 1800;
+        deleting = true;
+      } else if (deleting && ci === 0) {
+        deleting = false;
+        pi = (pi + 1) % phrases.length;
+        delay = 420;
+      }
+      setTimeout(tick, delay);
+    };
+    tick();
+
+    // 数字滚动效果
+    const cio = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (!e.isIntersecting) continue;
+          cio.unobserve(e.target);
+          const el = e.target as HTMLElement;
+          const target = Number(el.dataset.counter) || 0;
+          const dur = 1200;
+          const t0 = performance.now();
+          const step = (t: number) => {
+            const p = Math.min((t - t0) / dur, 1);
+            el.textContent = String(Math.round(target * (1 - Math.pow(1 - p, 3))));
+            if (p < 1) requestAnimationFrame(step);
+          };
+          requestAnimationFrame(step);
+        }
+      },
+      { threshold: 0.5 }
+    );
+    document.querySelectorAll<HTMLElement>('[data-counter]').forEach((el) => cio.observe(el));
+  </script>
+</Layout>

@@ -1,0 +1,98 @@
+---
+import '../styles/global.css';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'Zhou 的数字花园',
+  description = '一个记录写作、摄影与生活的个人空间',
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+  </head>
+  <body id="top">
+    <div class="cursor-glow" id="cursor-glow" aria-hidden="true"></div>
+    <div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
+    <Navbar />
+    <main class="page-enter">
+      <slot />
+    </main>
+    <Footer />
+
+    <script>
+      // 顶部滚动进度条
+      const progress = document.getElementById('scroll-progress')!;
+      const updateProgress = () => {
+        const h = document.documentElement;
+        const max = h.scrollHeight - h.clientHeight || 1;
+        progress.style.width = `${Math.min((h.scrollTop / max) * 100, 100)}%`;
+      };
+      document.addEventListener('scroll', updateProgress, { passive: true });
+      updateProgress();
+
+      // 滚动渐显动画
+      const io = new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) {
+            if (e.isIntersecting) {
+              e.target.classList.add('visible');
+              io.unobserve(e.target);
+            }
+          }
+        },
+        { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
+      );
+      document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+
+      // 仅在支持鼠标悬浮的设备上启用增强效果
+      const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+      if (finePointer) {
+        // 卡片 3D 倾斜
+        document.querySelectorAll<HTMLElement>('[data-tilt]').forEach((card) => {
+          const strength = Number(card.dataset.tilt) || 8;
+          card.addEventListener('mousemove', (ev) => {
+            const r = card.getBoundingClientRect();
+            const x = (ev.clientX - r.left) / r.width - 0.5;
+            const y = (ev.clientY - r.top) / r.height - 0.5;
+            card.style.transform = `perspective(900px) rotateY(${x * strength}deg) rotateX(${-y * strength}deg) translateY(-4px)`;
+          });
+          card.addEventListener('mouseleave', () => {
+            card.style.transform = '';
+          });
+        });
+
+        // 光标光晕跟随（带缓动）
+        const glow = document.getElementById('cursor-glow')!;
+        let tx = window.innerWidth / 2;
+        let ty = window.innerHeight / 2;
+        let x = tx;
+        let y = ty;
+        window.addEventListener('mousemove', (e) => {
+          tx = e.clientX;
+          ty = e.clientY;
+        });
+        const loop = () => {
+          x += (tx - x) * 0.08;
+          y += (ty - y) * 0.08;
+          glow.style.transform = `translate3d(${x - 250}px, ${y - 250}px, 0)`;
+          requestAnimationFrame(loop);
+        };
+        loop();
+      }
+    </script>
+  </body>
+</html>

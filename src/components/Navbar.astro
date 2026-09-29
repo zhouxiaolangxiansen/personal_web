@@ -1,0 +1,87 @@
+---
+const pathname = Astro.url.pathname;
+
+const links = [
+  { href: '/', label: '首页' },
+  { href: '/blog', label: '博客' },
+  { href: '/gallery', label: '影像' },
+  { href: '/life', label: '记录' },
+];
+
+const isActive = (href: string) =>
+  href === '/' ? pathname === '/' : pathname.startsWith(href);
+---
+
+<header class="fixed inset-x-0 top-0 z-40 border-b border-white/5 bg-[#07070f]/70 backdrop-blur-xl">
+  <nav class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+    <a href="/" class="group flex items-center gap-2 text-lg font-bold text-white">
+      <span
+        class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-cyan-400 font-serif text-sm transition-transform duration-500 group-hover:rotate-[20deg]"
+      >
+        周
+      </span>
+      <span class="font-serif">数字<span class="text-gradient">花园</span></span>
+    </a>
+
+    <!-- 桌面导航 -->
+    <div class="hidden items-center gap-8 md:flex">
+      {
+        links.map((link) => (
+          <a href={link.href} class={`nav-link text-sm ${isActive(link.href) ? 'active' : ''}`}>
+            {link.label}
+          </a>
+        ))
+      }
+    </div>
+
+    <!-- 移动端菜单按钮 -->
+    <button
+      id="menu-toggle"
+      class="flex flex-col gap-1.5 p-2 md:hidden"
+      aria-label="打开菜单"
+      aria-expanded="false"
+    >
+      <span class="menu-line h-0.5 w-6 rounded bg-zinc-300 transition-all duration-300"></span>
+      <span class="menu-line h-0.5 w-6 rounded bg-zinc-300 transition-all duration-300"></span>
+      <span class="menu-line h-0.5 w-6 rounded bg-zinc-300 transition-all duration-300"></span>
+    </button>
+  </nav>
+
+  <!-- 移动端菜单 -->
+  <div id="mobile-menu" class="hidden border-t border-white/5 md:hidden">
+    <div class="flex flex-col gap-1 px-6 py-4">
+      {
+        links.map((link) => (
+          <a
+            href={link.href}
+            class={`rounded-lg px-3 py-2.5 text-sm transition-colors ${
+              isActive(link.href) ? 'bg-white/5 text-white' : 'text-zinc-400 hover:text-white'
+            }`}
+          >
+            {link.label}
+          </a>
+        ))
+      }
+    </div>
+  </div>
+</header>
+
+<script>
+  const toggle = document.getElementById('menu-toggle');
+  const menu = document.getElementById('mobile-menu');
+
+  toggle?.addEventListener('click', () => {
+    const open = menu?.classList.toggle('hidden') === false;
+    toggle.setAttribute('aria-expanded', String(open));
+    const lines = toggle.querySelectorAll('.menu-line');
+    lines[0].style.transform = open ? 'translateY(8px) rotate(45deg)' : '';
+    lines[1].style.opacity = open ? '0' : '';
+    lines[2].style.transform = open ? 'translateY(-8px) rotate(-45deg)' : '';
+  });
+
+  menu?.querySelectorAll('a').forEach((a) => {
+    a.addEventListener('click', () => {
+      menu.classList.add('hidden');
+    });
+  });
+</script>

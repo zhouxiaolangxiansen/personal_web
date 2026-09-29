@@ -1,0 +1,35 @@
+---
+const year = new Date().getFullYear();
+---
+
+<footer class="border-t border-white/5 bg-white/[0.02]">
+  <div class="mx-auto max-w-6xl px-6 py-14">
+    <div class="grid gap-10 md:grid-cols-3">
+      <div>
+        <p class="font-serif text-lg font-bold text-white">数字<span class="text-gradient">花园</span></p>
+        <p class="mt-3 text-sm leading-relaxed text-zinc-500">
+          种下想法，耐心浇灌，<br />等待文字与光影慢慢生长。
+        </p>
+      </div>
+      <div>
+        <p class="text-sm font-semibold text-zinc-300">导航</p>
+        <ul class="mt-4 space-y-2.5 text-sm text-zinc-500">
+          <li><a href="/blog" class="transition-colors hover:text-cyan-300">博客</a></li>
+          <li><a href="/gallery" class="transition-colors hover:text-cyan-300">影像</a></li>
+          <li><a href="/life" class="transition-colors hover:text-cyan-300">记录</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="text-sm font-semibold text-zinc-300">找到我</p>
+        <ul class="mt-4 space-y-2.5 text-sm text-zinc-500">
+          <li><a href="https://github.com" target="_blank" rel="noopener noreferrer" class="transition-colors hover:text-cyan-300">GitHub</a></li>
+          <li><a href="mailto:hello@example.com" class="transition-colors hover:text-cyan-300">Email</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/5 pt-6 text-xs text-zinc-600 md:flex-row">
+      <p>© {year} Zhou · 用热爱构建</p>
+      <a href="#top" class="transition-colors hover:text-zinc-300">回到顶部 ↑</a>
+    </div>
+  </div>
+</footer>

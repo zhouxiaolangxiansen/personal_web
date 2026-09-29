@@ -1,0 +1,113 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const events = [
+  {
+    date: '2026-09',
+    tag: '里程碑',
+    tagCls: 'border-violet-400/30 bg-violet-400/10 text-violet-300',
+    title: '数字花园上线',
+    text: '用 Astro + Cloudflare Pages 搭好了这个家，从布局到粒子特效全部亲手完成。',
+  },
+  {
+    date: '2026-08',
+    tag: '摄影',
+    tagCls: 'border-pink-400/30 bg-pink-400/10 text-pink-300',
+    title: '第一次拍到银河',
+    text: '海拔 4200 米的湖边，凌晨两点的风把三脚架都吹歪了，好在快门没白按。',
+  },
+  {
+    date: '2026-06',
+    tag: '学习',
+    tagCls: 'border-cyan-400/30 bg-cyan-400/10 text-cyan-300',
+    title: '读完《多媒体学习》',
+    text: '重新理解了"图文互补"，顺手给博客的排版换了一套思路。',
+  },
+  {
+    date: '2026-03',
+    tag: '生活',
+    tagCls: 'border-emerald-400/30 bg-emerald-400/10 text-emerald-300',
+    title: '开始晨跑',
+    text: '从 2 公里气喘吁吁，到现在能轻松跑完 5 公里。原来坚持真的会上瘾。',
+  },
+  {
+    date: '2025-12',
+    tag: '旅行',
+    tagCls: 'border-amber-400/30 bg-amber-400/10 text-amber-300',
+    title: '川西跨年',
+    text: '在垭口看完了 2025 年的最后一缕阳光，许愿明年多出门走走。',
+  },
+];
+---
+
+<Layout title="记录 | Zhou 的数字花园" description="学习与生活的时间线">
+  <section class="mx-auto max-w-4xl px-6 pb-28 pt-36">
+    <p class="reveal text-sm font-semibold tracking-[0.3em] text-emerald-300">TIMELINE</p>
+    <h1 class="reveal mt-3 font-serif text-4xl font-bold text-white md:text-5xl" style="--d:.05s">
+      学习与<span class="text-gradient">生活</span>
+    </h1>
+    <p class="reveal mt-4 text-zinc-400" style="--d:.1s">
+      时间线上的每一个节点，都是认真活过的证据。
+    </p>
+
+    <div class="timeline mt-16">
+      {
+        events.map((e, i) => (
+          <div class="tl-item reveal" style={`--d:${i * 0.06}s`}>
+            <div class="flex flex-wrap items-center gap-3">
+              <span class="font-mono text-sm text-zinc-500">{e.date}</span>
+              <span class={`inline-flex rounded-full border px-2.5 py-0.5 text-xs ${e.tagCls}`}>{e.tag}</span>
+            </div>
+            <h2 class="mt-3 font-serif text-xl font-bold text-white">{e.title}</h2>
+            <p class="mt-2 max-w-xl text-sm leading-relaxed text-zinc-400">{e.text}</p>
+          </div>
+        ))
+      }
+    </div>
+
+    <div class="glass reveal mt-20 rounded-3xl p-10 text-center" style="--d:.2s">
+      <p class="font-serif text-xl leading-relaxed text-zinc-300 md:text-2xl">
+        "种一棵树最好的时间是十年前，<br />
+        其次是现在。"
+      </p>
+      <p class="mt-4 text-sm text-zinc-500">—— 与所有正在开垦自己花园的人共勉</p>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .timeline {
+    position: relative;
+    padding-left: 2rem;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 8px;
+    bottom: 8px;
+    width: 2px;
+    border-radius: 2px;
+    background: linear-gradient(180deg, #8b5cf6, #22d3ee, #f472b6);
+    opacity: 0.35;
+  }
+  .tl-item {
+    position: relative;
+    padding-bottom: 2.75rem;
+  }
+  .tl-item:last-child {
+    padding-bottom: 0;
+  }
+  .tl-item::before {
+    content: '';
+    position: absolute;
+    left: calc(-2rem + 1px);
+    top: 5px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #0b0b16;
+    border: 2px solid #8b5cf6;
+    box-shadow: 0 0 14px rgba(139, 92, 246, 0.55);
+  }
+</style>
