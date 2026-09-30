@@ -56,14 +56,19 @@ const validSlug = (s: unknown): string | null => {
 type Handler = (ctx: {
   request: Request;
   env: Env;
-  url: URL;
 }) => Promise<Response>;
 
-export const onRequestGet: Handler = async ({ env, url }) => {
+// 从 request.url 解析 query 参数（Pages Functions 上下文没有独立的 url 属性）
+const getSlug = (request: Request): string | null => {
+  const { searchParams } = new URL(request.url);
+  return validSlug(searchParams.get('slug'));
+};
+
+export const onRequestGet: Handler = async ({ request, env }) => {
   if (!env.GUESTBOOK) {
     return json({ ok: false, error: 'R2 绑定未配置（GUESTBOOK）' }, 500);
   }
-  const slug = validSlug(url.searchParams.get('slug'));
+  const slug = getSlug(request);
   if (!slug) return json({ ok: false, error: '文章参数错误' }, 400);
 
   const prefix = `comments/${slug}/`;
@@ -85,11 +90,11 @@ export const onRequestGet: Handler = async ({ env, url }) => {
   return json({ ok: true, comments });
 };
 
-export const onRequestPost: Handler = async ({ request, env, url }) => {
+export const onRequestPost: Handler = async ({ request, env }) => {
   if (!env.GUESTBOOK) {
     return json({ ok: false, error: 'R2 绑定未配置（GUESTBOOK）' }, 500);
   }
-  const slug = validSlug(url.searchParams.get('slug'));
+  const slug = getSlug(request);
   if (!slug) return json({ ok: false, error: '文章参数错误' }, 400);
 
   let body: Record<string, unknown>;
