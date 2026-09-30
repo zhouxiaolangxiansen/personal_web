@@ -1,16 +1,16 @@
 ---
+import { getCollection } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
 
-const photos = [
-  { src: '/images/gallery/mountain.jpg', title: '川西 · 日照金山', category: '风光' },
-  { src: '/images/gallery/milkyway.jpg', title: '银河拱桥', category: '风光' },
-  { src: '/images/gallery/sea.jpg', title: '海边长曝', category: '风光' },
-  { src: '/images/gallery/city.jpg', title: '城市夜行', category: '城市' },
-  { src: '/images/gallery/street.jpg', title: '雨夜古镇', category: '城市' },
-  { src: '/images/gallery/forest.jpg', title: '晨雾森林', category: '自然' },
-];
+const photos = (await getCollection('photos')).sort(
+  (a, b) => a.data.order - b.data.order
+);
 
-const categories = ['全部', '风光', '城市', '自然'];
+const videos = (await getCollection('videos')).sort(
+  (a, b) => a.data.order - b.data.order
+);
+
+const categories = ['全部', ...new Set(photos.map((p) => p.data.category))];
 ---
 
 <Layout title="影像 | Zhou 的数字花园" description="摄影与视频作品集">
@@ -39,20 +39,22 @@ const categories = ['全部', '风光', '城市', '自然'];
           <button
             class="reveal group relative block overflow-hidden rounded-2xl"
             data-photo={i}
-            data-category={p.category}
+            data-src={p.data.src}
+            data-title={p.data.title}
+            data-category={p.data.category}
             style={`--d:${(i % 3) * 0.08}s`}
-            aria-label={`查看 ${p.title} 大图`}
+            aria-label={`查看 ${p.data.title} 大图`}
           >
             <img
-              src={p.src}
-              alt={p.title}
+              src={p.data.src}
+              alt={p.data.title}
               class="aspect-[3/2] w-full object-cover transition-transform duration-700 group-hover:scale-110"
               loading="lazy"
             />
             <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
             <div class="absolute inset-x-0 bottom-0 translate-y-3 p-5 text-left opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100">
-              <p class="caption-title font-serif text-lg font-bold text-white">{p.title}</p>
-              <p class="mt-1 text-xs text-zinc-400">{p.category} · 点击查看大图</p>
+              <p class="caption-title font-serif text-lg font-bold text-white">{p.data.title}</p>
+              <p class="mt-1 text-xs text-zinc-400">{p.data.category} · 点击查看大图</p>
             </div>
           </button>
         ))
@@ -65,36 +67,60 @@ const categories = ['全部', '风光', '城市', '自然'];
       <h2 class="reveal mt-3 font-serif text-3xl font-bold text-white md:text-4xl" style="--d:.05s">
         视频作品
       </h2>
-      <p class="reveal mt-4 text-sm text-zinc-500" style="--d:.1s">
-        视频体积较大，建议存放在对象存储（如 Cloudflare R2，流量免费），再嵌入到下面的卡片中。
-      </p>
 
       <div class="mt-10 grid gap-6 md:grid-cols-3">
-        <!-- 视频卡片示例：替换为 <video src="你的R2地址" controls></video> -->
-        <div class="tilt-card glass reveal group relative aspect-video overflow-hidden rounded-2xl" data-tilt="5">
-          <img src="/images/gallery/city.jpg" alt="延时摄影：城市夜色" class="h-full w-full object-cover opacity-60" loading="lazy" />
-          <div class="absolute inset-0 flex items-center justify-center">
-            <div class="flex h-16 w-16 items-center justify-center rounded-full border border-white/30 bg-black/40 backdrop-blur transition-transform duration-300 group-hover:scale-110" style="animation: glow-pulse 3s ease-in-out infinite">
-              <div class="ml-1 h-0 w-0 border-y-8 border-l-[14px] border-y-transparent border-l-white"></div>
-            </div>
-          </div>
-          <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-4">
-            <p class="font-serif text-sm font-bold text-white">延时摄影 · 城市夜色</p>
-          </div>
-        </div>
-
         {
-          [1, 2].map((i) => (
-            <div
-              class="reveal flex aspect-video flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-white/15 bg-white/[0.02]"
-              style={`--d:${0.1 + i * 0.08}s`}
-            >
-              <div class="flex h-12 w-12 items-center justify-center rounded-full border border-white/15 text-zinc-500">
-                +
+          videos.map((v, i) =>
+            v.data.src ? (
+              <div
+                class="tilt-card reveal glass overflow-hidden rounded-2xl"
+                data-tilt="5"
+                style={`--d:${i * 0.08}s`}
+              >
+                <video
+                  src={v.data.src}
+                  poster={v.data.cover}
+                  controls
+                  preload="metadata"
+                  class="aspect-video w-full bg-black"
+                ></video>
+                <div class="p-4">
+                  <p class="font-serif text-sm font-bold text-white">{v.data.title}</p>
+                  {v.data.description && <p class="mt-1 text-xs text-zinc-500">{v.data.description}</p>}
+                </div>
               </div>
-              <p class="text-xs text-zinc-600">视频位 · 待上传</p>
-            </div>
-          ))
+            ) : v.data.cover ? (
+              <div
+                class="tilt-card glass reveal group relative aspect-video overflow-hidden rounded-2xl"
+                data-tilt="5"
+                style={`--d:${i * 0.08}s`}
+              >
+                <img src={v.data.cover} alt={v.data.title} class="h-full w-full object-cover opacity-60" loading="lazy" />
+                <div class="absolute inset-0 flex items-center justify-center">
+                  <div
+                    class="flex h-16 w-16 items-center justify-center rounded-full border border-white/30 bg-black/40 backdrop-blur transition-transform duration-300 group-hover:scale-110"
+                    style="animation: glow-pulse 3s ease-in-out infinite"
+                  >
+                    <div class="ml-1 h-0 w-0 border-y-8 border-l-[14px] border-y-transparent border-l-white"></div>
+                  </div>
+                </div>
+                <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                  <p class="font-serif text-sm font-bold text-white">{v.data.title}</p>
+                  {v.data.description && <p class="mt-0.5 text-xs text-zinc-400">{v.data.description}</p>}
+                </div>
+              </div>
+            ) : (
+              <div
+                class="reveal flex aspect-video flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-white/15 bg-white/[0.02]"
+                style={`--d:${i * 0.08}s`}
+              >
+                <div class="flex h-12 w-12 items-center justify-center rounded-full border border-white/15 text-zinc-500">
+                  +
+                </div>
+                <p class="text-xs text-zinc-600">{v.data.title}</p>
+              </div>
+            )
+          )
         }
       </div>
     </div>
@@ -138,19 +164,12 @@ const categories = ['全部', '风光', '城市', '自然'];
 
     let current = 0;
 
-    const getPhoto = (i: number) => {
-      const card = cards[i]!;
-      return {
-        src: card.querySelector('img')?.getAttribute('src') ?? '',
-        title: card.querySelector('.caption-title')?.textContent ?? '',
-      };
-    };
-
     const openLightbox = (i: number) => {
       current = (i + cards.length) % cards.length;
-      const photo = getPhoto(current)!;
-      lbImg.src = photo.src;
-      lbCaption.textContent = `${photo.title}（${current + 1} / ${cards.length}）`;
+      const card = cards[current]!;
+      lbImg.src = card.dataset.src ?? '';
+      lbImg.alt = card.dataset.title ?? '';
+      lbCaption.textContent = `${card.dataset.title}（${current + 1} / ${cards.length}）`;
       lightbox.classList.add('open');
       document.body.style.overflow = 'hidden';
     };

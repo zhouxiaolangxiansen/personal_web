@@ -10,12 +10,10 @@ const posts = (await getCollection('blog'))
 const fmt = (d: Date) =>
   d.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
 
-const photos = [
-  { src: '/images/gallery/mountain.jpg', title: '川西 · 日照金山' },
-  { src: '/images/gallery/milkyway.jpg', title: '银河之下' },
-  { src: '/images/gallery/city.jpg', title: '城市夜行' },
-  { src: '/images/gallery/sea.jpg', title: '海边黄昏' },
-];
+const photos = (await getCollection('photos'))
+  .sort((a, b) => a.data.order - b.data.order)
+  .slice(0, 4)
+  .map((p) => ({ src: p.data.src, title: p.data.title }));
 
 const marqueeItems = ['写作', '摄影', '代码', '旅行', '阅读', '生活', '思考', '记录'];
 
