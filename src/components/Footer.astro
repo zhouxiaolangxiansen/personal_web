@@ -23,8 +23,18 @@ const year = new Date().getFullYear();
       <div>
         <p class="text-sm font-semibold text-zinc-300">找到我</p>
         <ul class="mt-4 space-y-2.5 text-sm text-zinc-500">
-          <li><a href="https://github.com" target="_blank" rel="noopener noreferrer" class="transition-colors hover:text-cyan-300">GitHub</a></li>
-          <li><a href="mailto:hello@example.com" class="transition-colors hover:text-cyan-300">Email</a></li>
+          <li><a href="https://github.com/zhouxiaolangxiansen" target="_blank" rel="noopener noreferrer" class="transition-colors hover:text-cyan-300">GitHub</a></li>
+          <li>
+            <button
+              id="copy-email"
+              data-email="hcz.email@qq.com"
+              class="cursor-pointer text-sm text-zinc-500 transition-colors hover:text-cyan-300"
+              aria-label="复制邮箱地址"
+              title="点击复制邮箱地址"
+            >
+              <span id="copy-email-text">Email</span>
+            </button>
+          </li>
         </ul>
       </div>
     </div>
@@ -34,3 +44,19 @@ const year = new Date().getFullYear();
     </div>
   </div>
 </footer>
+
+<script>
+  const btn = document.getElementById('copy-email');
+  btn?.addEventListener('click', async () => {
+    const textEl = document.getElementById('copy-email-text');
+    try {
+      await navigator.clipboard.writeText(btn.dataset.email ?? '');
+      if (textEl) {
+        textEl.textContent = '已复制 ✓';
+        setTimeout(() => (textEl.textContent = 'Email'), 2000);
+      }
+    } catch {
+      if (textEl) textEl.textContent = '复制失败';
+    }
+  });
+</script>
