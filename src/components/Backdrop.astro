@@ -1,18 +1,13 @@
-<!-- 四套主题的场景装饰层：CSS 按 data-theme 控制显隐 -->
+<!-- 写实主题背景：AI 生成的风景照 + 轻量动效 -->
 <div class="backdrop" aria-hidden="true">
 
-  <!-- ============ 早晨：雾霭山色 ============ -->
+  <!-- ============ 早晨：雾霭山谷（照片） ============ -->
   <div class="bd bd-morning">
-    <div class="bd-morning-sun"></div>
+    <img class="bd-photo" src="/images/themes/morning.jpg" alt="" loading="eager" />
+    <div class="bd-photo-overlay"></div>
+    <!-- 漂移薄雾 + 露珠微光 -->
     <div class="bd-fog m-fog-1"></div>
     <div class="bd-fog m-fog-2"></div>
-    <div class="bd-fog m-fog-3"></div>
-    <svg class="bd-mountains" viewBox="0 0 1440 320" preserveAspectRatio="none">
-      <path d="M0,220 L180,120 L320,190 L520,80 L700,180 L900,110 L1100,200 L1300,130 L1440,190 L1440,320 L0,320 Z" fill="#9ec9b4" opacity="0.5"/>
-      <path d="M0,260 L240,180 L430,240 L640,160 L860,240 L1080,180 L1280,250 L1440,210 L1440,320 L0,320 Z" fill="#7fb69e" opacity="0.65"/>
-      <path d="M0,300 L300,240 L600,280 L900,230 L1200,290 L1440,260 L1440,320 L0,320 Z" fill="#5f9c85" opacity="0.85"/>
-    </svg>
-    <!-- 露珠微光 -->
     <i class="bd-dew" style="top:30%;left:12%"></i>
     <i class="bd-dew" style="top:55%;left:28%;animation-delay:1.2s"></i>
     <i class="bd-dew" style="top:42%;left:55%;animation-delay:0.6s"></i>
@@ -20,130 +15,31 @@
     <i class="bd-dew" style="top:35%;left:86%;animation-delay:0.3s"></i>
   </div>
 
-  <!-- ============ 正午：阳光沙滩 ============ -->
+  <!-- ============ 正午：阳光沙滩（照片：少女与少年追逐打闹） ============ -->
   <div class="bd bd-noon">
-    <div class="bd-noon-sun">
-      <svg viewBox="0 0 120 120">
-        <g stroke="#f59e0b" stroke-width="4" stroke-linecap="round">
-          <line x1="106" y1="60" x2="118" y2="60"/><line x1="99.8" y1="83" x2="110.2" y2="89"/>
-          <line x1="83" y1="99.8" x2="89" y2="110.2"/><line x1="60" y1="106" x2="60" y2="118"/>
-          <line x1="37" y1="99.8" x2="31" y2="110.2"/><line x1="20.2" y1="83" x2="9.8" y2="89"/>
-          <line x1="14" y1="60" x2="2" y2="60"/><line x1="20.2" y1="37" x2="9.8" y2="31"/>
-          <line x1="37" y1="20.2" x2="31" y2="9.8"/><line x1="60" y1="14" x2="60" y2="2"/>
-          <line x1="83" y1="20.2" x2="89" y2="9.8"/><line x1="99.8" y1="37" x2="110.2" y2="31"/>
-        </g>
-        <circle cx="60" cy="60" r="32" fill="#fcd34d"/>
-        <circle cx="60" cy="60" r="32" fill="none" stroke="#f59e0b" stroke-width="3"/>
-      </svg>
-    </div>
+    <img class="bd-photo" src="/images/themes/noon.jpg" alt="" loading="eager" />
+    <div class="bd-photo-overlay"></div>
+    <!-- 白云缓缓漂过 -->
     <div class="bd-cloud noon-cloud-1"></div>
     <div class="bd-cloud noon-cloud-2"></div>
-
-    <!-- 漂浮的沙滩元素 -->
-    <div class="bd-float noon-umbrella">
-      <svg viewBox="0 0 64 64"><path d="M32 6 C15 6 6 20 6 30 L58 30 C58 20 49 6 32 6 Z" fill="#f87171"/><path d="M32 6 C26 14 24 22 24 30 L40 30 C40 22 38 14 32 6 Z" fill="#fecaca"/><rect x="30" y="30" width="4" height="26" rx="2" fill="#92400e"/><path d="M30 56 q-8 4 -10 -2" stroke="#92400e" stroke-width="3" fill="none" stroke-linecap="round"/></svg>
-    </div>
-    <div class="bd-float noon-icecream">
-      <svg viewBox="0 0 64 64"><path d="M32 62 L20 30 L44 30 Z" fill="#d9a066"/><circle cx="26" cy="24" r="10" fill="#f9a8d4"/><circle cx="38" cy="24" r="10" fill="#fef3c7"/><circle cx="32" cy="16" r="9" fill="#a7f3d0"/><circle cx="32" cy="9" r="2.5" fill="#dc2626"/></svg>
-    </div>
-    <div class="bd-float noon-ring">
-      <svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="24" fill="none" stroke="#f87171" stroke-width="12"/><circle cx="32" cy="32" r="24" fill="none" stroke="#fff" stroke-width="12" stroke-dasharray="18 18"/></svg>
-    </div>
-    <div class="bd-float noon-ball">
-      <svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="26" fill="#fde68a"/><path d="M32 6 C18 20 18 44 32 58 C24 44 24 20 32 6 Z" fill="#f87171"/><path d="M32 6 C46 20 46 44 32 58 C40 44 40 20 32 6 Z" fill="#60a5fa"/><circle cx="32" cy="32" r="26" fill="none" stroke="#fff" stroke-width="2"/></svg>
-    </div>
-
-    <!-- 海浪与沙滩 -->
-    <svg class="bd-beach" viewBox="0 0 1440 140" preserveAspectRatio="none">
-      <path d="M0,50 C120,20 240,80 360,50 C480,20 600,80 720,50 C840,20 960,80 1080,50 C1200,20 1320,80 1440,50 L1440,140 L0,140 Z" fill="#7cc4e8" opacity="0.55"/>
-      <path d="M0,80 C160,50 320,110 480,80 C640,50 800,110 960,80 C1120,50 1280,110 1440,80 L1440,140 L0,140 Z" fill="#f7e3b2"/>
-      <path d="M0,95 C160,70 320,120 480,95 C640,70 800,120 960,95 C1120,70 1280,120 1440,95 L1440,140 L0,140 Z" fill="#f3d9a4"/>
-    </svg>
   </div>
 
-  <!-- ============ 傍晚：落日晚霞 ============ -->
+  <!-- ============ 傍晚：落日晚霞（照片） ============ -->
   <div class="bd bd-dusk">
-    <!-- 高处疏星 -->
+    <img class="bd-photo" src="/images/themes/dusk.jpg" alt="" loading="eager" />
+    <div class="bd-photo-overlay"></div>
+    <!-- 高处疏星闪烁 + 暖色光斑呼吸 -->
     <div class="bd-dusk-stars"><i></i><i></i><i></i><i></i><i></i></div>
-    <div class="bd-cloud dusk-cloud-1"></div>
-    <div class="bd-cloud dusk-cloud-2"></div>
-    <div class="bd-dusk-sun"></div>
-    <svg class="bd-mountains" viewBox="0 0 1440 320" preserveAspectRatio="none">
-      <path d="M0,250 L180,170 L340,230 L520,150 L700,230 L880,175 L1060,240 L1240,180 L1440,235 L1440,320 L0,320 Z" fill="#4a1e42" opacity="0.75"/>
-      <path d="M0,285 L240,225 L460,270 L680,215 L900,265 L1120,225 L1320,275 L1440,250 L1440,320 L0,320 Z" fill="#241026"/>
-    </svg>
+    <div class="dusk-glow"></div>
   </div>
 
-  <!-- ============ 异国风情：北欧牧场 ============ -->
+  <!-- ============ 异国风情：北欧牧场（照片） ============ -->
   <div class="bd bd-exotic">
+    <img class="bd-photo" src="/images/themes/exotic.jpg" alt="" loading="eager" />
+    <div class="bd-photo-overlay"></div>
+    <!-- 白云漂移 -->
     <div class="bd-cloud ex-cloud-1"></div>
     <div class="bd-cloud ex-cloud-2"></div>
-
-    <!-- 风车（叶片旋转） -->
-    <div class="bd-windmill wm-left">
-      <svg viewBox="0 0 120 180">
-        <g class="wm-blades">
-          <rect x="56" y="8" width="8" height="56" rx="4" fill="#8a5a3b"/>
-          <rect x="56" y="8" width="8" height="56" rx="4" fill="#8a5a3b" transform="rotate(90 60 36)"/>
-          <rect x="56" y="8" width="8" height="56" rx="4" fill="#8a5a3b" transform="rotate(180 60 36)"/>
-          <rect x="56" y="8" width="8" height="56" rx="4" fill="#8a5a3b" transform="rotate(270 60 36)"/>
-        </g>
-        <circle cx="60" cy="36" r="6" fill="#5b3018"/>
-        <path d="M42 44 L36 172 L84 172 L78 44 Z" fill="#b45309"/>
-        <path d="M42 44 L36 172 L48 172 L52 44 Z" fill="#92400e"/>
-        <rect x="48" y="60" width="8" height="10" fill="#fdf6e3"/>
-        <rect x="64" y="90" width="8" height="10" fill="#fdf6e3"/>
-      </svg>
-    </div>
-    <div class="bd-windmill wm-right">
-      <svg viewBox="0 0 120 180">
-        <g class="wm-blades wm-blades-slow">
-          <rect x="56" y="8" width="8" height="56" rx="4" fill="#8a5a3b"/>
-          <rect x="56" y="8" width="8" height="56" rx="4" fill="#8a5a3b" transform="rotate(90 60 36)"/>
-          <rect x="56" y="8" width="8" height="56" rx="4" fill="#8a5a3b" transform="rotate(180 60 36)"/>
-          <rect x="56" y="8" width="8" height="56" rx="4" fill="#8a5a3b" transform="rotate(270 60 36)"/>
-        </g>
-        <circle cx="60" cy="36" r="6" fill="#5b3018"/>
-        <path d="M42 44 L36 172 L84 172 L78 44 Z" fill="#b45309"/>
-        <path d="M42 44 L36 172 L48 172 L52 44 Z" fill="#92400e"/>
-        <rect x="48" y="60" width="8" height="10" fill="#fdf6e3"/>
-        <rect x="64" y="90" width="8" height="10" fill="#fdf6e3"/>
-      </svg>
-    </div>
-
-    <!-- 彩色小屋（哥本哈根风） -->
-    <svg class="bd-houses" viewBox="0 0 1440 160" preserveAspectRatio="none">
-      <g>
-        <rect x="60" y="70" width="130" height="90" fill="#e63946"/><path d="M55 70 L125 30 L195 70 Z" fill="#c1121f"/><rect x="110" y="100" width="20" height="60" fill="#fdf6e3"/><rect x="80" y="85" width="16" height="16" fill="#fdf6e3"/>
-        <rect x="200" y="55" width="120" height="105" fill="#f4a261"/><path d="M195 55 L260 20 L325 55 Z" fill="#e76f51"/><rect x="245" y="90" width="22" height="70" fill="#fdf6e3"/><rect x="215" y="70" width="15" height="15" fill="#fdf6e3"/><rect x="280" y="70" width="15" height="15" fill="#fdf6e3"/>
-        <rect x="330" y="65" width="125" height="95" fill="#2a9d8f"/><path d="M325 65 L392 28 L460 65 Z" fill="#1d7871"/><rect x="380" y="95" width="20" height="65" fill="#fdf6e3"/><rect x="350" y="80" width="15" height="15" fill="#fdf6e3"/>
-        <rect x="465" y="50" width="135" height="110" fill="#e9c46a"/><path d="M460 50 L532 12 L605 50 Z" fill="#caa235"/><rect x="510" y="85" width="22" height="75" fill="#fdf6e3"/><rect x="480" y="65" width="16" height="16" fill="#fdf6e3"/><rect x="550" y="65" width="16" height="16" fill="#fdf6e3"/>
-        <rect x="610" y="68" width="128" height="92" fill="#457b9d"/><path d="M605 68 L674 30 L743 68 Z" fill="#33587a"/><rect x="660" y="98" width="20" height="62" fill="#fdf6e3"/><rect x="630" y="82" width="15" height="15" fill="#fdf6e3"/>
-        <rect x="748" y="58" width="122" height="102" fill="#d94801"/><path d="M743 58 L809 22 L875 58 Z" fill="#a33501"/><rect x="795" y="92" width="20" height="68" fill="#fdf6e3"/><rect x="765" y="75" width="15" height="15" fill="#fdf6e3"/><rect x="835" y="75" width="15" height="15" fill="#fdf6e3"/>
-        <rect x="880" y="66" width="130" height="94" fill="#9d4edd"/><path d="M875 66 L945 28 L1015 66 Z" fill="#7b2cbf"/><rect x="930" y="96" width="20" height="64" fill="#fdf6e3"/><rect x="900" y="80" width="15" height="15" fill="#fdf6e3"/>
-      </g>
-    </svg>
-
-    <!-- 郁金香花田（用 pattern 铺排） -->
-    <svg class="bd-tulips" viewBox="0 0 1440 110" preserveAspectRatio="none">
-      <defs>
-        <pattern id="tulip-row-a" width="46" height="26" patternUnits="userSpaceOnUse">
-          <rect x="21" y="12" width="3" height="14" fill="#2e7d32"/>
-          <circle cx="22.5" cy="9" r="5.5" fill="#e63946"/>
-        </pattern>
-        <pattern id="tulip-row-b" width="46" height="26" patternUnits="userSpaceOnUse">
-          <rect x="21" y="12" width="3" height="14" fill="#2e7d32"/>
-          <circle cx="22.5" cy="9" r="5.5" fill="#f4a261"/>
-        </pattern>
-        <pattern id="tulip-row-c" width="46" height="26" patternUnits="userSpaceOnUse">
-          <rect x="21" y="12" width="3" height="14" fill="#2e7d32"/>
-          <circle cx="22.5" cy="9" r="5.5" fill="#d980fa"/>
-        </pattern>
-      </defs>
-      <rect x="0" y="0" width="1440" height="36" fill="url(#tulip-row-a)"/>
-      <rect x="0" y="36" width="1440" height="36" fill="url(#tulip-row-b)" transform="translate(23,0)"/>
-      <rect x="0" y="72" width="1440" height="38" fill="url(#tulip-row-c)"/>
-    </svg>
   </div>
 </div>
 
@@ -168,38 +64,38 @@
     display: block;
   }
 
-  .bd-mountains,
-  .bd-beach,
-  .bd-houses,
-  .bd-tulips {
+  /* 写实照片：全屏铺满 + 缓慢缩放的"呼吸感" */
+  .bd-photo {
     position: absolute;
-    bottom: 0;
-    left: 0;
+    inset: 0;
     width: 100%;
-    height: auto;
+    height: 100%;
+    object-fit: cover;
+    animation: bd-breathe 34s ease-in-out infinite alternate;
+  }
+  /* 浅色系主题文字为深色：用白纱罩提亮照片、统一背景，保证对比度 */
+  .bd-photo-overlay {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 252, 0.5) 0%, rgba(255, 255, 252, 0.28) 35%, rgba(255, 255, 252, 0.3) 65%, rgba(255, 255, 252, 0.52) 100%);
+  }
+  /* 傍晚文字为浅色：改用暗罩压暗，突出晚霞 */
+  [data-theme="dusk"] .bd-photo-overlay {
+    background:
+      linear-gradient(180deg, rgba(26, 12, 30, 0.42) 0%, rgba(26, 12, 30, 0.1) 40%, rgba(20, 8, 24, 0.32) 100%);
   }
 
   /* ---------- 早晨 ---------- */
-  .bd-morning-sun {
-    position: absolute;
-    top: 12%;
-    right: 14%;
-    width: 140px;
-    height: 140px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(255, 252, 230, 0.95), rgba(255, 250, 220, 0.35) 60%, transparent 72%);
-    filter: blur(2px);
-  }
   .bd-fog {
     position: absolute;
     border-radius: 9999px;
     filter: blur(46px);
-    background: rgba(255, 255, 255, 0.6);
-    animation: bd-drift 22s ease-in-out infinite alternate;
+    background: rgba(255, 255, 255, 0.5);
+    animation: bd-drift 24s ease-in-out infinite alternate;
   }
-  .m-fog-1 { width: 55vw; height: 130px; bottom: 24%; left: -8%; }
-  .m-fog-2 { width: 45vw; height: 110px; bottom: 38%; right: -10%; animation-delay: -7s; animation-duration: 28s; }
-  .m-fog-3 { width: 50vw; height: 90px; bottom: 12%; left: 25%; animation-delay: -14s; animation-duration: 32s; }
+  .m-fog-1 { width: 55vw; height: 130px; bottom: 22%; left: -8%; }
+  .m-fog-2 { width: 45vw; height: 110px; bottom: 38%; right: -10%; animation-delay: -9s; animation-duration: 30s; }
 
   .bd-dew {
     position: absolute;
@@ -211,72 +107,17 @@
   }
 
   /* ---------- 正午 ---------- */
-  .bd-noon-sun {
-    position: absolute;
-    top: 7%;
-    right: 8%;
-    width: 130px;
-    height: 130px;
-    filter: drop-shadow(0 0 34px rgba(251, 191, 36, 0.65));
-  }
-  .bd-noon-sun svg {
-    width: 100%;
-    height: 100%;
-    animation: bd-spin 26s linear infinite;
-  }
   .bd-cloud {
     position: absolute;
     border-radius: 9999px;
-    filter: blur(22px);
-    background: rgba(255, 255, 255, 0.8);
-    animation: bd-cloud-move 70s linear infinite;
+    filter: blur(24px);
+    background: rgba(255, 255, 255, 0.55);
+    animation: bd-cloud-move 80s linear infinite;
   }
-  .noon-cloud-1 { width: 220px; height: 60px; top: 12%; left: 12%; }
-  .noon-cloud-2 { width: 300px; height: 70px; top: 24%; left: 55%; animation-duration: 95s; animation-delay: -40s; }
-
-  .bd-float {
-    position: absolute;
-    animation: bd-float 6s ease-in-out infinite;
-    opacity: 0.92;
-    filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.12));
-  }
-  .bd-float svg { width: 100%; height: 100%; }
-  .noon-umbrella { width: 74px; height: 74px; top: 34%; left: 7%; animation-delay: -1s; }
-  .noon-icecream { width: 60px; height: 60px; top: 52%; left: 18%; animation-delay: -3s; }
-  .noon-ring { width: 66px; height: 66px; top: 30%; right: 12%; animation-delay: -2s; }
-  .noon-ball { width: 54px; height: 54px; top: 50%; right: 22%; animation-delay: -4.5s; }
-
-  .bd-beach { height: 130px; }
+  .noon-cloud-1 { width: 240px; height: 60px; top: 12%; left: 12%; }
+  .noon-cloud-2 { width: 320px; height: 70px; top: 24%; left: 55%; animation-duration: 105s; animation-delay: -40s; }
 
   /* ---------- 傍晚 ---------- */
-  .bd-dusk-sun {
-    position: absolute;
-    bottom: 17%;
-    left: 50%;
-    width: 190px;
-    height: 190px;
-    transform: translateX(-50%);
-    border-radius: 50%;
-    background: radial-gradient(circle, #ffe8b0 0%, #fbbf24 45%, #f97316 74%, transparent 78%);
-    box-shadow: 0 0 130px 55px rgba(251, 146, 60, 0.4);
-  }
-  .dusk-cloud-1 {
-    width: 260px;
-    height: 56px;
-    top: 16%;
-    left: 8%;
-    background: rgba(255, 180, 140, 0.28);
-    animation-duration: 80s;
-  }
-  .dusk-cloud-2 {
-    width: 340px;
-    height: 64px;
-    top: 30%;
-    left: 60%;
-    background: rgba(255, 160, 120, 0.22);
-    animation-duration: 110s;
-    animation-delay: -50s;
-  }
   .bd-dusk-stars i {
     position: absolute;
     width: 3px;
@@ -290,38 +131,31 @@
   .bd-dusk-stars i:nth-child(3) { top: 12%; left: 62%; animation-delay: 1.4s; }
   .bd-dusk-stars i:nth-child(4) { top: 6%; left: 80%; animation-delay: 0.4s; }
   .bd-dusk-stars i:nth-child(5) { top: 15%; left: 92%; animation-delay: 1.9s; }
+  /* 落日暖光呼吸 */
+  .dusk-glow {
+    position: absolute;
+    left: 50%;
+    bottom: 10%;
+    width: 46vw;
+    height: 46vw;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(251, 146, 60, 0.22), transparent 65%);
+    animation: bd-glow-pulse 7s ease-in-out infinite;
+  }
 
   /* ---------- 异国风情 ---------- */
   .ex-cloud-1 { width: 260px; height: 60px; top: 10%; left: 20%; }
   .ex-cloud-2 { width: 320px; height: 66px; top: 22%; left: 65%; animation-duration: 100s; animation-delay: -30s; }
-  .bd-windmill {
-    position: absolute;
-    bottom: 96px;
-    width: 96px;
-    height: 144px;
-    opacity: 0.9;
-  }
-  .wm-left { left: 6%; }
-  .wm-right { right: 7%; width: 78px; height: 118px; bottom: 86px; }
-  .wm-blades {
-    transform-origin: 60px 36px;
-    animation: bd-spin 13s linear infinite;
-  }
-  .wm-blades-slow {
-    animation-duration: 19s;
-    animation-direction: reverse;
-  }
-  .bd-houses { height: 130px; opacity: 0.95; }
-  .bd-tulips { height: 84px; opacity: 0.9; }
 
   /* ---------- 关键帧 ---------- */
-  @keyframes bd-spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+  @keyframes bd-breathe {
+    from { transform: scale(1); }
+    to { transform: scale(1.06); }
   }
   @keyframes bd-drift {
-    from { transform: translateX(-5vw); }
-    to { transform: translateX(5vw); }
+    from { transform: translateX(-4vw); }
+    to { transform: translateX(4vw); }
   }
   @keyframes bd-twinkle {
     0%, 100% { opacity: 0.2; transform: scale(0.8); }
@@ -331,9 +165,13 @@
     from { transform: translateX(-30vw); }
     to { transform: translateX(130vw); }
   }
-  @keyframes bd-float {
-    0%, 100% { transform: translateY(0) rotate(-3deg); }
-    50% { transform: translateY(-18px) rotate(3deg); }
+  @keyframes bd-girl-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  @keyframes bd-glow-pulse {
+    0%, 100% { opacity: 0.5; transform: translateX(-50%) scale(1); }
+    50% { opacity: 1; transform: translateX(-50%) scale(1.12); }
   }
 
   @media (prefers-reduced-motion: reduce) {
