@@ -12,9 +12,12 @@ interface R2ListResult {
   truncated: boolean;
   cursor?: string;
 }
+interface R2ObjectBody {
+  json<T>(): Promise<T>;
+}
 interface R2Bucket {
   put(key: string, value: string): Promise<unknown>;
-  get(key: string): Promise<unknown>;
+  get(key: string): Promise<R2ObjectBody | null>;
   list(options?: { limit?: number; prefix?: string; cursor?: string }): Promise<R2ListResult>;
 }
 interface Env {
@@ -60,10 +63,10 @@ export const onRequestGet: Handler = async ({ env }) => {
 
   const messages: GuestMessage[] = [];
   for (const key of keys.slice(0, MAX_MESSAGES_RETURNED)) {
-    const obj = (await env.GUESTBOOK.get(key)) as { text: string } | null;
+    const obj = await env.GUESTBOOK.get(key);
     if (!obj) continue;
     try {
-      const m = JSON.parse(obj.text) as Omit<GuestMessage, 'key'>;
+      const m = await obj.json<Omit<GuestMessage, 'key'>>();
       messages.push({ ...m, key });
     } catch {
       // 跳过损坏的数据
@@ -105,10 +108,10 @@ export const onRequestPost: Handler = async ({ request, env }) => {
   const listed = await env.GUESTBOOK.list({ prefix: PREFIX, limit: 1000 });
   const recentKeys = listed.objects.map((o) => o.key).sort().reverse().slice(0, 5);
   for (const key of recentKeys) {
-    const obj = (await env.GUESTBOOK.get(key)) as { text: string } | null;
+    const obj = await env.GUESTBOOK.get(key);
     if (!obj) continue;
     try {
-      const m = JSON.parse(obj.text) as { ip?: string; time?: string };
+      const m = await obj.json<{ ip?: string; time?: string }>();
       if (m.ip === ip && m.time && Date.now() - new Date(m.time).getTime() < RATE_LIMIT_MS) {
         return json({ ok: false, error: '发言太快啦，喝口水休息一分钟~' }, 429);
       }
