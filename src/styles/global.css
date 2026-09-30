@@ -5,16 +5,119 @@
   --font-serif: "Songti SC", "STSong", "SimSun", "Noto Serif SC", serif;
 }
 
+/* ============ 主题变量 ============ */
+:root {
+  --c-bg: #07070f;
+  --c-text: #e4e4e7;
+  --c-text-soft: #c8c8d0;
+  --c-text-muted: #a1a1aa;
+  --c-heading: #ffffff;
+  --c-accent: #22d3ee;
+  --c-accent-hover: #a78bfa;
+  --c-card-bg: rgba(255, 255, 255, 0.04);
+  --c-card-border: rgba(255, 255, 255, 0.08);
+  --c-nav-bg: rgba(7, 7, 15, 0.7);
+  --c-dot-bg: #0b0b16;
+  --c-code-bg: #0d0d1c;
+  --c-reading-bg: rgba(10, 10, 22, 0.72);
+}
+
+/* ============ 白天模式 ============ */
+[data-theme="light"] {
+  --c-bg: #f5f3ee;
+  --c-text: #3f3f46;
+  --c-text-soft: #4b4b52;
+  --c-text-muted: #6e6e76;
+  --c-heading: #18181b;
+  --c-accent: #0e7490;
+  --c-accent-hover: #6d28d9;
+  --c-card-bg: rgba(255, 255, 255, 0.65);
+  --c-card-border: rgba(0, 0, 0, 0.08);
+  --c-nav-bg: rgba(245, 243, 238, 0.75);
+  --c-dot-bg: #ffffff;
+  --c-code-bg: #f4f2ec;
+  --c-reading-bg: rgba(255, 255, 255, 0.82);
+
+  /* 反转 Tailwind 常用白色/灰阶文字，保证浅底上的可读性 */
+  --color-white: #18181b;
+  --color-zinc-100: #2a2a30;
+  --color-zinc-200: #35353b;
+  --color-zinc-300: #404046;
+  --color-zinc-400: #52525b;
+  --color-zinc-500: #6d6d76;
+  --color-zinc-600: #8a8a92;
+
+  /* 浅底上把亮色文字替换为深色版本 */
+  --color-cyan-300: #0e7490;
+  --color-violet-300: #6d28d9;
+  --color-emerald-300: #047857;
+  --color-emerald-400: #059669;
+  --color-pink-400: #be185d;
+  --color-rose-400: #be123c;
+  --color-sky-300: #0369a1;
+  --color-sky-400: #0369a1;
+  --color-amber-300: #b45309;
+}
+
+/* 白天隐藏夜间特效 */
+[data-theme="light"] .starfield,
+[data-theme="light"] .aurora-blob,
+[data-theme="light"] .cursor-glow,
+[data-theme="light"] #particles-canvas {
+  display: none;
+}
+
+/* 白天模式下独立切换按钮的配色 */
+[data-theme="light"] .theme-toggle-float {
+  border-color: rgba(0, 0, 0, 0.12);
+  background: rgba(255, 255, 255, 0.6);
+  color: #6d6d76;
+}
+
+/* 白天滚动条 */
+[data-theme="light"] ::-webkit-scrollbar-track {
+  background: #ece9e2;
+}
+
+/* 白天渐变文字换用深色 */
+[data-theme="light"] .text-gradient {
+  background: linear-gradient(90deg, #7c3aed, #0e7490, #db2777, #7c3aed);
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: gradient-flow 8s linear infinite;
+}
+
+/* 导航外壳（昼夜两用背景） */
+.nav-shell {
+  background: var(--c-nav-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* 主题切换按钮图标 */
+.theme-icon-sun {
+  display: none;
+}
+[data-theme="light"] .theme-icon-sun {
+  display: block;
+}
+[data-theme="light"] .theme-icon-moon {
+  display: none;
+}
+
 /* ============ 基础 ============ */
 html {
   /* 底色放在 html 上，让负 z-index 的星空层能显示出来 */
-  background-color: #07070f;
+  background-color: var(--c-bg);
   scroll-behavior: smooth;
+  transition: background-color 0.4s ease;
 }
 
 body {
   background: transparent;
-  color: #e4e4e7;
+  color: var(--c-text);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
@@ -85,8 +188,8 @@ body {
 }
 
 .glass {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--c-card-bg);
+  border: 1px solid var(--c-card-border);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
 }
@@ -124,14 +227,14 @@ body {
   padding: 0.75rem 1.75rem;
   border-radius: 999px;
   font-weight: 600;
-  color: #e4e4e7;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--c-text);
+  border: 1px solid var(--c-card-border);
   background: rgba(255, 255, 255, 0.03);
   transition: all 0.3s ease;
 }
 .btn-ghost:hover {
   border-color: rgba(34, 211, 238, 0.5);
-  color: #fff;
+  color: var(--c-heading);
   transform: translateY(-2px);
   box-shadow: 0 0 24px rgba(34, 211, 238, 0.15);
 }
@@ -208,14 +311,14 @@ body {
 /* 导航链接下划线动画 */
 .nav-link {
   position: relative;
-  color: #a1a1aa;
+  color: var(--c-text-muted);
   transition: color 0.3s;
 }
 .nav-link:hover {
-  color: #fff;
+  color: var(--c-heading);
 }
 .nav-link.active {
-  color: #fff;
+  color: var(--c-heading);
 }
 .nav-link::after {
   content: "";
@@ -239,9 +342,9 @@ body {
   padding: 0.2rem 0.7rem;
   border-radius: 999px;
   font-size: 0.72rem;
-  color: #a1a1aa;
+  color: var(--c-text-muted);
   background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--c-card-border);
 }
 .chip {
   display: inline-flex;
@@ -249,15 +352,15 @@ body {
   padding: 0.4rem 1rem;
   border-radius: 999px;
   font-size: 0.85rem;
-  color: #a1a1aa;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--c-text-muted);
+  border: 1px solid var(--c-card-border);
   background: rgba(255, 255, 255, 0.03);
   cursor: pointer;
   transition: all 0.3s;
   user-select: none;
 }
 .chip:hover {
-  color: #fff;
+  color: var(--c-heading);
   border-color: rgba(139, 92, 246, 0.5);
 }
 .chip.active {
@@ -269,7 +372,7 @@ body {
 
 /* 打字机光标 */
 .caret {
-  color: #22d3ee;
+  color: var(--c-accent);
   animation: caret-blink 1s step-end infinite;
 }
 
@@ -293,7 +396,7 @@ body {
   height: 8px;
   margin-left: -2px;
   border-radius: 99px;
-  background: #22d3ee;
+  background: var(--c-accent);
   animation: scroll-dot 1.8s ease-out infinite;
 }
 
@@ -392,36 +495,36 @@ body {
 .prose-custom h2 {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--c-heading);
   margin: 2.4rem 0 1rem;
   scroll-margin-top: 6rem;
 }
 .prose-custom h3 {
   font-size: 1.2rem;
   font-weight: 700;
-  color: #f4f4f5;
+  color: var(--c-heading);
   margin: 1.8rem 0 0.8rem;
   scroll-margin-top: 6rem;
 }
 .prose-custom p {
   line-height: 1.9;
-  color: #c8c8d0;
+  color: var(--c-text-soft);
   margin: 1.1rem 0;
 }
 .prose-custom a {
-  color: #22d3ee;
+  color: var(--c-accent);
   text-decoration: underline;
   text-underline-offset: 4px;
   transition: color 0.3s;
 }
 .prose-custom a:hover {
-  color: #a78bfa;
+  color: var(--c-accent-hover);
 }
 .prose-custom ul,
 .prose-custom ol {
   padding-left: 1.5rem;
   line-height: 1.9;
-  color: #c8c8d0;
+  color: var(--c-text-soft);
   margin: 1.1rem 0;
 }
 .prose-custom ul {
@@ -436,13 +539,13 @@ body {
   border-left: 3px solid #8b5cf6;
   border-radius: 0 0.75rem 0.75rem 0;
   background: rgba(139, 92, 246, 0.07);
-  color: #d4d4d8;
+  color: var(--c-text-soft);
   font-style: italic;
 }
 .prose-custom code {
   font-family: ui-monospace, "SF Mono", "Cascadia Code", Menlo, monospace;
   font-size: 0.88em;
-  color: #22d3ee;
+  color: var(--c-accent);
   background: rgba(255, 255, 255, 0.07);
   padding: 0.15rem 0.4rem;
   border-radius: 0.35rem;
@@ -451,15 +554,15 @@ body {
   margin: 1.6rem 0;
   padding: 1.2rem 1.4rem;
   border-radius: 0.9rem;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: #0d0d1c;
+  border: 1px solid var(--c-card-border);
+  background: var(--c-code-bg);
   overflow-x: auto;
   line-height: 1.7;
 }
 .prose-custom pre code {
   padding: 0;
   background: none;
-  color: #e4e4e7;
+  color: var(--c-text);
   font-size: 0.85rem;
 }
 .prose-custom img {
@@ -476,23 +579,23 @@ body {
   margin-top: 0.7rem;
   text-align: center;
   font-size: 0.8rem;
-  color: #8b8b95;
+  color: var(--c-text-muted);
   line-height: 1.6;
 }
 
 /* 左侧目录 */
 .toc-link {
-  color: #71717a;
+  color: var(--c-text-muted);
   padding: 0.3rem 0.6rem;
   border-left: 2px solid transparent;
 }
 .toc-link:hover {
-  color: #fff;
+  color: var(--c-heading);
 }
 .toc-active,
 .toc-active:hover {
-  color: #22d3ee;
-  border-left-color: #22d3ee;
+  color: var(--c-accent);
+  border-left-color: var(--c-accent);
   background: rgba(34, 211, 238, 0.05);
 }
 .prose-custom hr {
@@ -517,8 +620,8 @@ body {
 
 /* 文章阅读底板：在星空背景上提供一块稳定的阅读区域 */
 .reading-card {
-  background: rgba(10, 10, 22, 0.72);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: var(--c-reading-bg);
+  border: 1px solid var(--c-card-border);
   border-radius: 1.5rem;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);

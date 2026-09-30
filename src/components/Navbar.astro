@@ -12,7 +12,7 @@ const isActive = (href: string) =>
   href === '/' ? pathname === '/' : pathname.startsWith(href);
 ---
 
-<header class="fixed inset-x-0 top-0 z-40 border-b border-white/5 bg-[#07070f]/70 backdrop-blur-xl">
+<header class="nav-shell fixed inset-x-0 top-0 z-40 border-b border-white/5">
   <nav class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
     <a href="/" class="group flex items-center gap-2 text-lg font-bold text-white">
       <span

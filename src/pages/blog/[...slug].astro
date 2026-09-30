@@ -37,11 +37,11 @@ const readMinutes = Math.max(1, Math.round(cjkCount / 400 + enWordCount / 200));
 ---
 
 <Layout title={`${post.data.title} | 周大牛的数字花园`} description={post.data.description}>
-  <div class="mx-auto flex max-w-6xl gap-12 px-6 pb-28 pt-36">
+  <div class="mx-auto flex max-w-[88rem] translate-x-[20px] gap-4 px-4 pb-28 pt-36">
     <!-- 左侧目录（桌面端） -->
     {
       toc.length > 0 && (
-        <aside class="hidden w-56 shrink-0 lg:block">
+        <aside class="hidden w-40 shrink-0 lg:block">
           <div class="sticky top-28">
             <p class="text-xs font-semibold tracking-[0.25em] text-zinc-500">目录</p>
             <nav id="toc-nav" class="mt-4 space-y-0.5 border-l border-white/10">
@@ -63,8 +63,8 @@ const readMinutes = Math.max(1, Math.round(cjkCount / 400 + enWordCount / 200));
       )
     }
 
-    <!-- 文章主体（带阅读底板，隔离星空背景便于阅读） -->
-    <article class="reading-card min-w-0 max-w-3xl flex-1">
+    <!-- 文章主体（带阅读底板，隔离星空背景便于阅读；宽度=原 48rem 文字区 + 底板左右内边距） -->
+    <article class="reading-card min-w-0 max-w-[58rem] flex-1">
       <a
         href="/blog"
         class="group inline-flex items-center gap-1.5 text-sm text-zinc-500 transition-colors hover:text-cyan-300"
@@ -236,42 +236,58 @@ const readMinutes = Math.max(1, Math.round(cjkCount / 400 + enWordCount / 200));
       }
     });
 
-    // ===== Mermaid 流程图渲染 =====
+    // ===== Mermaid 流程图渲染（随昼夜主题切换重渲染）=====
     // 注意：Astro/Shiki 渲染的代码块标识是 pre[data-language="mermaid"]，没有 language-mermaid 类
     import mermaid from 'mermaid';
 
-    const blocks = document.querySelectorAll<HTMLElement>('pre[data-language="mermaid"]');
-    if (blocks.length > 0) {
+    const mmdThemeVars = (theme: string) => ({
+      background: 'transparent',
+      primaryColor: theme === 'light' ? '#ede9fe' : '#2a1a4a',
+      primaryTextColor: theme === 'light' ? '#18181b' : '#fff',
+      primaryBorderColor: theme === 'light' ? '#7c3aed' : '#8b5cf6',
+      lineColor: theme === 'light' ? '#0e7490' : '#22d3ee',
+      secondaryColor: theme === 'light' ? '#e0f2fe' : '#0e3a4a',
+      tertiaryColor: theme === 'light' ? '#fce7f3' : '#3a1a2e',
+    });
+
+    const renderMmd = async (source: string) => {
+      const theme = document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
       mermaid.initialize({
         startOnLoad: false,
-        theme: 'dark',
-        themeVariables: {
-          background: 'transparent',
-          primaryColor: '#2a1a4a',
-          primaryTextColor: '#fff',
-          primaryBorderColor: '#8b5cf6',
-          lineColor: '#22d3ee',
-          secondaryColor: '#0e3a4a',
-          tertiaryColor: '#3a1a2e',
-        },
+        theme,
+        themeVariables: mmdThemeVars(theme),
         fontFamily: 'PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif',
       });
+      return mermaid.render(`mmd-${Math.random().toString(36).slice(2)}`, source);
+    };
 
-      for (const el of blocks) {
-        const source = el.querySelector('code')?.textContent ?? '';
-        try {
-          const { svg } = await mermaid.render(
-            `mmd-${Math.random().toString(36).slice(2)}`,
-            source
-          );
-          const box = document.createElement('div');
-          box.className = 'mermaid-box';
-          box.innerHTML = svg;
-          el.replaceWith(box);
-        } catch {
-          // 渲染失败时保留原始代码块，不让文章崩掉
-        }
+    // 首次渲染：代码块 → mermaid-box，记录源码以便主题切换时重绘
+    const mermaidSources: { box: HTMLElement; source: string }[] = [];
+
+    for (const el of document.querySelectorAll<HTMLElement>('pre[data-language="mermaid"]')) {
+      const source = el.querySelector('code')?.textContent ?? '';
+      try {
+        const { svg } = await renderMmd(source);
+        const box = document.createElement('div');
+        box.className = 'mermaid-box';
+        box.innerHTML = svg;
+        el.replaceWith(box);
+        mermaidSources.push({ box, source });
+      } catch {
+        // 渲染失败时保留原始代码块，不让文章崩掉
       }
     }
+
+    // 主题切换时按新配色重绘所有图
+    window.addEventListener('theme-change', async () => {
+      for (const { box, source } of mermaidSources) {
+        try {
+          const { svg } = await renderMmd(source);
+          box.innerHTML = svg;
+        } catch {
+          // 忽略单张重绘失败
+        }
+      }
+    });
   </script>
 </Layout>
