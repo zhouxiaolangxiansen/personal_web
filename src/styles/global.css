@@ -70,18 +70,18 @@
 [data-theme="morning"] {
   --c-bg: linear-gradient(180deg, #dcebe4 0%, #eef4ef 70%, #f4f7f3 100%);
   --c-accent: #0f766e;
-  --c-card-bg: rgba(255, 255, 255, 0.6);
+  --c-card-bg: rgba(255, 255, 255, 0.9);
   --c-nav-bg: rgba(238, 244, 239, 0.78);
-  --c-reading-bg: rgba(255, 255, 255, 0.8);
+  --c-reading-bg: rgba(255, 255, 255, 0.92);
 }
 
 /* 正午：阳光沙滩 */
 [data-theme="noon"] {
   --c-bg: linear-gradient(180deg, #bfe4ff 0%, #e9f5ff 55%, #ffefc9 100%);
   --c-accent: #0369a1;
-  --c-card-bg: rgba(255, 255, 255, 0.65);
+  --c-card-bg: rgba(255, 255, 255, 0.92);
   --c-nav-bg: rgba(233, 245, 255, 0.78);
-  --c-reading-bg: rgba(255, 255, 255, 0.82);
+  --c-reading-bg: rgba(255, 255, 255, 0.92);
 }
 
 /* 傍晚：落日晚霞（深色系，文字保持浅色） */
@@ -93,21 +93,21 @@
   --c-heading: #fff4e6;
   --c-accent: #fbbf24;
   --c-accent-hover: #f472b6;
-  --c-card-bg: rgba(60, 26, 48, 0.55);
+  --c-card-bg: rgba(60, 26, 48, 0.82);
   --c-card-border: rgba(255, 200, 150, 0.15);
   --c-nav-bg: rgba(31, 18, 48, 0.6);
   --c-dot-bg: #2a1626;
   --c-code-bg: #2a1626;
-  --c-reading-bg: rgba(43, 20, 38, 0.6);
+  --c-reading-bg: rgba(43, 20, 38, 0.85);
 }
 
 /* 异国风情：北欧牧场 */
 [data-theme="exotic"] {
   --c-bg: linear-gradient(180deg, #c9ecfb 0%, #dff2d2 50%, #c3ec9e 100%);
   --c-accent: #15803d;
-  --c-card-bg: rgba(255, 255, 255, 0.6);
+  --c-card-bg: rgba(255, 255, 255, 0.9);
   --c-nav-bg: rgba(223, 242, 210, 0.78);
-  --c-reading-bg: rgba(255, 255, 255, 0.8);
+  --c-reading-bg: rgba(255, 255, 255, 0.92);
 }
 
 /* 特效只在黑夜里出现（星空/极光/粒子/光晕） */
