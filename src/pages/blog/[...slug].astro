@@ -57,4 +57,43 @@ const date = post.data.pubDate.toLocaleDateString('zh-CN', {
       <a href="/blog" class="btn-ghost">← 回到文章列表</a>
     </div>
   </article>
+
+  <script>
+    // Mermaid 流程图渲染：把 ```mermaid 代码块替换为 SVG 图
+    import mermaid from 'mermaid';
+
+    const blocks = document.querySelectorAll<HTMLElement>('code.language-mermaid');
+    if (blocks.length > 0) {
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: 'dark',
+        themeVariables: {
+          background: 'transparent',
+          primaryColor: '#2a1a4a',
+          primaryTextColor: '#fff',
+          primaryBorderColor: '#8b5cf6',
+          lineColor: '#22d3ee',
+          secondaryColor: '#0e3a4a',
+          tertiaryColor: '#3a1a2e',
+        },
+        fontFamily: 'PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif',
+      });
+
+      for (const el of blocks) {
+        const source = el.textContent ?? '';
+        try {
+          const { svg } = await mermaid.render(
+            `mmd-${Math.random().toString(36).slice(2)}`,
+            source
+          );
+          const box = document.createElement('div');
+          box.className = 'mermaid-box';
+          box.innerHTML = svg;
+          el.closest('pre')?.replaceWith(box);
+        } catch {
+          // 渲染失败时保留原始代码块，不让文章崩掉
+        }
+      }
+    }
+  </script>
 </Layout>
