@@ -7,11 +7,13 @@
 
 /* ============ 基础 ============ */
 html {
+  /* 底色放在 html 上，让负 z-index 的星空层能显示出来 */
+  background-color: #07070f;
   scroll-behavior: smooth;
 }
 
 body {
-  background-color: #07070f;
+  background: transparent;
   color: #e4e4e7;
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;

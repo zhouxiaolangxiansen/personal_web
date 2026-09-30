@@ -1,0 +1,298 @@
+<div class="starfield" aria-hidden="true">
+  <canvas id="starfield-canvas"></canvas>
+</div>
+
+<script>
+  // ===== 全局星空背景：闪烁星星 + 随机流星 + 可点击亮星 =====
+  const canvas = document.getElementById('starfield-canvas') as HTMLCanvasElement;
+  const ctx = canvas.getContext('2d')!;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  let w = 0;
+  let h = 0;
+
+  interface Star {
+    x: number;
+    y: number;
+    r: number;
+    a: number;
+    tw: number;
+    ts: number;
+    color: string;
+  }
+
+  interface Meteor {
+    x: number;
+    y: number;
+    vx: number;
+    vy: number;
+    len: number;
+    life: number;
+    maxLife: number;
+    hue: number;
+  }
+
+  /** 特别的亮星：点击化作流星飞走，随后随机重生 */
+  interface BrightStar {
+    x: number;
+    y: number;
+    r: number;
+    hue: number;
+    tw: number;
+    respawnAt: number; // 为 0 表示存活中
+    born: number; // 出生时间，用于淡入
+  }
+
+  let stars: Star[] = [];
+  let meteors: Meteor[] = [];
+  let brights: BrightStar[] = [];
+  let nextMeteorAt = performance.now() + 1200;
+
+  const starColors = [
+    '255, 255, 255',
+    '255, 255, 255',
+    '255, 255, 255',
+    '190, 225, 255', // 淡青
+    '215, 195, 255', // 淡紫
+    '255, 225, 195', // 暖白
+  ];
+
+  const rand = (min: number, max: number) => min + Math.random() * (max - min);
+
+  function resize() {
+    w = window.innerWidth;
+    h = window.innerHeight;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    canvas.style.width = `${w}px`;
+    canvas.style.height = `${h}px`;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    // 密度更高：每 4200px² 一颗，上限 480
+    const count = Math.min(480, Math.floor((w * h) / 4200));
+    stars = Array.from({ length: count }, () => ({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      r: rand(0.35, 1.8),
+      a: rand(0.5, 1), // 整体更亮
+      tw: Math.random() * Math.PI * 2,
+      ts: rand(0.004, 0.028),
+      color: starColors[Math.floor(Math.random() * starColors.length)]!,
+    }));
+
+    // 亮星：屏幕宽度每 350px 一颗，3~6 颗
+    const bc = Math.max(3, Math.min(6, Math.round(w / 350)));
+    brights = Array.from({ length: bc }, () => newBright());
+  }
+
+  function newBright(): BrightStar {
+    return {
+      x: rand(w * 0.05, w * 0.95),
+      y: rand(h * 0.08, h * 0.85),
+      r: rand(2.6, 3.8),
+      hue: [195, 265, 45, 330][Math.floor(Math.random() * 4)]!, // 青/紫/金/粉
+      tw: Math.random() * Math.PI * 2,
+      respawnAt: 0,
+      born: performance.now(),
+    };
+  }
+
+  function spawnMeteor(fromX?: number, fromY?: number, hue?: number) {
+    // 亮星点击：从点击点向下方随机角度飞出
+    if (fromX !== undefined && fromY !== undefined) {
+      const speed = rand(6, 9);
+      const angle = rand(25, 55) * (Math.PI / 180);
+      const dir = Math.random() < 0.5 ? 1 : -1;
+      meteors.push({
+        x: fromX,
+        y: fromY,
+        vx: Math.cos(angle) * speed * dir,
+        vy: Math.sin(angle) * speed,
+        len: rand(140, 220),
+        life: 0,
+        maxLife: rand(55, 75),
+        hue: hue ?? 195,
+      });
+      return;
+    }
+
+    // 自然流星
+    const speed = rand(6, 13);
+    const angle = rand(20, 46) * (Math.PI / 180);
+    const dir = Math.random() < 0.5 ? 1 : -1;
+    const fromTop = Math.random() < 0.75;
+    meteors.push({
+      x: fromTop ? Math.random() * w : dir > 0 ? -60 : w + 60,
+      y: fromTop ? -40 : Math.random() * h * 0.35,
+      vx: Math.cos(angle) * speed * dir,
+      vy: Math.sin(angle) * speed,
+      len: rand(110, 260),
+      life: 0,
+      maxLife: rand(55, 85),
+      hue: Math.random() < 0.6 ? 195 : 265,
+    });
+  }
+
+  function drawMeteor(m: Meteor) {
+    const p = m.life / m.maxLife;
+    const fade = p < 0.12 ? p / 0.12 : Math.max(0, 1 - (p - 0.12) / 0.88);
+
+    const sp = Math.hypot(m.vx, m.vy);
+    const tx = m.x - (m.vx / sp) * m.len;
+    const ty = m.y - (m.vy / sp) * m.len;
+
+    const grad = ctx.createLinearGradient(m.x, m.y, tx, ty);
+    grad.addColorStop(0, `hsla(${m.hue}, 95%, 85%, ${0.95 * fade})`);
+    grad.addColorStop(1, 'hsla(0, 0%, 100%, 0)');
+
+    ctx.strokeStyle = grad;
+    ctx.lineWidth = 2.2; // 更粗更明显
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(m.x, m.y);
+    ctx.lineTo(tx, ty);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(m.x, m.y, 2.4, 0, Math.PI * 2);
+    ctx.fillStyle = `hsla(${m.hue}, 100%, 95%, ${fade})`;
+    ctx.fill();
+  }
+
+  function drawBright(b: BrightStar, t: number) {
+    b.tw += 0.03;
+    const bornFade = Math.min(1, (t - b.born) / 600);
+    const pulse = 0.65 + 0.35 * Math.sin(b.tw);
+    const alpha = bornFade * pulse;
+
+    // 光晕
+    const glow = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.r * 6);
+    glow.addColorStop(0, `hsla(${b.hue}, 90%, 80%, ${0.5 * alpha})`);
+    glow.addColorStop(1, 'hsla(0, 0%, 100%, 0)');
+    ctx.beginPath();
+    ctx.arc(b.x, b.y, b.r * 6, 0, Math.PI * 2);
+    ctx.fillStyle = glow;
+    ctx.fill();
+
+    // 四芒星十字光芒
+    ctx.save();
+    ctx.translate(b.x, b.y);
+    ctx.strokeStyle = `hsla(${b.hue}, 90%, 85%, ${alpha})`;
+    ctx.lineWidth = 1;
+    const len = b.r * (3 + Math.sin(b.tw * 1.5) * 0.6);
+    for (let i = 0; i < 4; i++) {
+      const a = (i * Math.PI) / 2 + Math.PI / 4;
+      ctx.beginPath();
+      ctx.moveTo(Math.cos(a) * b.r, Math.sin(a) * b.r);
+      ctx.lineTo(Math.cos(a) * len, Math.sin(a) * len);
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    // 星核
+    ctx.beginPath();
+    ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+    ctx.fillStyle = `hsla(${b.hue}, 100%, 92%, ${alpha})`;
+    ctx.fill();
+  }
+
+  function draw(t: number) {
+    ctx.clearRect(0, 0, w, h);
+
+    // 普通星星
+    for (const s of stars) {
+      s.tw += s.ts;
+      const alpha = s.a * (0.5 + 0.5 * Math.sin(s.tw));
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${s.color}, ${alpha})`;
+      ctx.fill();
+    }
+
+    // 亮星（含重生检查）
+    for (const b of brights) {
+      if (b.respawnAt > 0) {
+        if (t >= b.respawnAt) {
+          Object.assign(b, newBright(), { respawnAt: 0 });
+        }
+        continue;
+      }
+      drawBright(b, t);
+    }
+
+    // 流星
+    for (let i = meteors.length - 1; i >= 0; i--) {
+      const m = meteors[i]!;
+      m.x += m.vx;
+      m.y += m.vy;
+      m.life++;
+      drawMeteor(m);
+      if (m.life >= m.maxLife || m.x < -250 || m.x > w + 250 || m.y > h + 250) {
+        meteors.splice(i, 1);
+      }
+    }
+
+    // 自然流星：每 1.2~3.5 秒一颗
+    if (t > nextMeteorAt) {
+      spawnMeteor();
+      nextMeteorAt = t + 1200 + Math.random() * 2300;
+    }
+
+    if (!reduced) requestAnimationFrame(draw);
+  }
+
+  // ===== 亮星交互：点击化作流星 =====
+  const HIT_R = 22; // 命中半径（像素）
+
+  const interactiveTarget = (el: EventTarget | null) =>
+    (el as HTMLElement | null)?.closest(
+      'a, button, input, textarea, select, video, label, nav, img, figure'
+    ) == null;
+
+  window.addEventListener('click', (e) => {
+    if (reduced || !interactiveTarget(e.target)) return;
+    const mx = e.clientX;
+    const my = e.clientY;
+    for (const b of brights) {
+      if (b.respawnAt > 0) continue;
+      if (Math.hypot(mx - b.x, my - b.y) <= HIT_R) {
+        spawnMeteor(b.x, b.y, b.hue);
+        b.respawnAt = performance.now() + rand(3000, 7000); // 3~7 秒后重生
+        break;
+      }
+    }
+  });
+
+  // 悬停在亮星上时显示手型光标
+  window.addEventListener(
+    'mousemove',
+    (e) => {
+      if (reduced) return;
+      const near = brights.some(
+        (b) =>
+          b.respawnAt === 0 && Math.hypot(e.clientX - b.x, e.clientY - b.y) <= HIT_R
+      );
+      document.body.style.cursor = near ? 'pointer' : '';
+    },
+    { passive: true }
+  );
+
+  window.addEventListener('resize', resize);
+  resize();
+
+  if (reduced) {
+    draw(Number.MAX_SAFE_INTEGER);
+  } else {
+    requestAnimationFrame(draw);
+  }
+</script>
+
+<style>
+  .starfield {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+  }
+</style>
