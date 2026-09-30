@@ -63,8 +63,8 @@ const readMinutes = Math.max(1, Math.round(cjkCount / 400 + enWordCount / 200));
       )
     }
 
-    <!-- 文章主体 -->
-    <article class="min-w-0 max-w-3xl flex-1">
+    <!-- 文章主体（带阅读底板，隔离星空背景便于阅读） -->
+    <article class="reading-card min-w-0 max-w-3xl flex-1">
       <a
         href="/blog"
         class="group inline-flex items-center gap-1.5 text-sm text-zinc-500 transition-colors hover:text-cyan-300"

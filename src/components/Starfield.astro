@@ -81,14 +81,34 @@
       color: starColors[Math.floor(Math.random() * starColors.length)]!,
     }));
 
-    // 亮星：屏幕宽度每 350px 一颗，3~6 颗
-    const bc = Math.max(3, Math.min(6, Math.round(w / 350)));
-    brights = Array.from({ length: bc }, () => newBright());
+    // 亮星固定 4 颗
+    brights = Array.from({ length: 4 }, () => newBright());
   }
 
   function newBright(): BrightStar {
+    // 避开正文区域：若页面存在 article（博客文章页），
+    // 亮星只出现在文章列左右两侧的留白中
+    const art = document.querySelector('main article');
+    let x = rand(w * 0.05, w * 0.95);
+    if (art && w > 900) {
+      const r = art.getBoundingClientRect();
+      const left = r.left - 40;
+      const right = r.right + 40;
+      const leftSpace = left;
+      const rightSpace = w - right;
+      if (leftSpace > 120 && rightSpace > 120) {
+        x =
+          Math.random() < leftSpace / (leftSpace + rightSpace)
+            ? rand(12, left - 12)
+            : rand(right + 12, w - 12);
+      } else if (leftSpace > 120) {
+        x = rand(12, left - 12);
+      } else if (rightSpace > 120) {
+        x = rand(right + 12, w - 12);
+      }
+    }
     return {
-      x: rand(w * 0.05, w * 0.95),
+      x,
       y: rand(h * 0.08, h * 0.85),
       r: rand(2.6, 3.8),
       hue: [195, 265, 45, 330][Math.floor(Math.random() * 4)]!, // 青/紫/金/粉
