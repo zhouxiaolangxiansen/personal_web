@@ -1,0 +1,203 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="留言板 | 周大牛的数字花园" description="路过留下只言片语">
+  <section class="mx-auto max-w-4xl px-6 pb-28 pt-36">
+    <p class="reveal text-sm font-semibold tracking-[0.3em] text-cyan-300">GUESTBOOK</p>
+    <h1 class="reveal mt-3 font-serif text-4xl font-bold text-white md:text-5xl" style="--d:.05s">
+      留下<span class="text-gradient">足迹</span>
+    </h1>
+    <p class="reveal mt-4 text-zinc-400" style="--d:.1s">
+      路过这座花园，留下只言片语吧。
+    </p>
+
+    <!-- 留言表单 -->
+    <form id="gb-form" class="reveal glass mt-12 rounded-2xl p-6 md:p-8" style="--d:.15s">
+      <div class="flex flex-col gap-4">
+        <input
+          id="gb-name"
+          type="text"
+          maxlength="24"
+          placeholder="你的名字（可留空）"
+          class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-zinc-500 outline-none transition-colors focus:border-cyan-400/50"
+        />
+        <textarea
+          id="gb-text"
+          rows="4"
+          maxlength="500"
+          placeholder="写下你的留言…"
+          class="w-full resize-y rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm leading-relaxed text-white placeholder-zinc-500 outline-none transition-colors focus:border-cyan-400/50"
+        ></textarea>
+        <!-- 蜜罐：人类看不见，机器人会填 -->
+        <input type="text" id="gb-honeypot" class="hidden" tabindex="-1" autocomplete="off" aria-hidden="true" />
+        <div class="flex items-center justify-between">
+          <div class="flex gap-1.5" id="gb-emojis">
+            {['😊', '🎉', '🌸', '🍺', '📷', '👍'].map((e) => (
+              <button type="button" class="emoji-btn text-lg transition-transform duration-200 hover:scale-125">{e}</button>
+            ))}
+          </div>
+          <button type="submit" id="gb-submit" class="btn-primary text-sm">留下足迹 ✦</button>
+        </div>
+        <p id="gb-count" class="text-right text-xs text-zinc-600">0 / 500</p>
+      </div>
+    </form>
+
+    <!-- 提示条 -->
+    <p id="gb-tip" class="mt-4 hidden rounded-xl px-4 py-3 text-sm"></p>
+
+    <!-- 留言列表 -->
+    <h2 class="reveal mt-16 font-serif text-xl font-bold text-white" style="--d:.2s">最近的足迹</h2>
+    <div id="gb-list" class="mt-6 space-y-4"></div>
+
+    <p id="gb-empty" class="mt-12 hidden text-center text-sm text-zinc-500">
+      还没有留言，来做第一个访客吧～
+    </p>
+    <p id="gb-error" class="mt-12 hidden text-center text-sm text-zinc-500">
+      留言服务暂不可用，请稍后再试。
+    </p>
+  </section>
+
+  <style>
+    .emoji-btn {
+      padding: 0.25rem 0.4rem;
+      border-radius: 0.5rem;
+      border: 1px solid transparent;
+    }
+    .emoji-btn:hover {
+      background: rgba(255, 255, 255, 0.06);
+    }
+    .gb-card {
+      animation: gb-pop 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+    @keyframes gb-pop {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: none; }
+    }
+  </style>
+
+  <script>
+    const form = document.getElementById('gb-form') as HTMLFormElement;
+    const nameEl = document.getElementById('gb-name') as HTMLInputElement;
+    const textEl = document.getElementById('gb-text') as HTMLTextAreaElement;
+    const honeypotEl = document.getElementById('gb-honeypot') as HTMLInputElement;
+    const listEl = document.getElementById('gb-list')!;
+    const emptyEl = document.getElementById('gb-empty')!;
+    const errorEl = document.getElementById('gb-error')!;
+    const tipEl = document.getElementById('gb-tip') as HTMLElement;
+    const countEl = document.getElementById('gb-count')!;
+    const submitBtn = document.getElementById('gb-submit') as HTMLButtonElement;
+
+    interface Msg {
+      name: string;
+      text: string;
+      time: string;
+    }
+
+    const fmtTime = (iso: string) => {
+      const d = new Date(iso);
+      const diff = Date.now() - d.getTime();
+      if (diff < 60_000) return '刚刚';
+      if (diff < 3600_000) return `${Math.floor(diff / 60_000)} 分钟前`;
+      if (diff < 86400_000) return `${Math.floor(diff / 3600_000)} 小时前`;
+      return d.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
+    };
+
+    const showTip = (msg: string, ok: boolean) => {
+      tipEl.textContent = msg;
+      tipEl.className = `mt-4 rounded-xl border px-4 py-3 text-sm ${
+        ok
+          ? 'border-emerald-400/30 bg-emerald-400/10 text-emerald-300'
+          : 'border-rose-400/30 bg-rose-400/10 text-rose-300'
+      }`;
+      setTimeout(() => tipEl.classList.add('hidden'), 3000);
+    };
+
+    const renderCard = (m: Msg, prepend = false) => {
+      const card = document.createElement('div');
+      card.className = 'gb-card glass rounded-2xl p-5 md:p-6';
+      card.innerHTML = `
+        <div class="flex items-center justify-between">
+          <p class="gb-name font-serif font-bold text-cyan-300"></p>
+          <p class="gb-time font-mono text-xs text-zinc-500"></p>
+        </div>
+        <p class="gb-text mt-2 whitespace-pre-wrap text-sm leading-relaxed text-zinc-300"></p>`;
+      // 用 textContent 写入，防 XSS
+      card.querySelector('.gb-name')!.textContent = m.name;
+      card.querySelector('.gb-time')!.textContent = fmtTime(m.time);
+      card.querySelector('.gb-text')!.textContent = m.text;
+      prepend ? listEl.prepend(card) : listEl.append(card);
+    };
+
+    const load = async () => {
+      try {
+        const res = await fetch('/api/guestbook');
+        const data = (await res.json()) as { ok: boolean; messages?: Msg[] };
+        if (!data.ok || !data.messages) throw new Error();
+        errorEl.classList.add('hidden');
+        if (data.messages.length === 0) {
+          emptyEl.classList.remove('hidden');
+          return;
+        }
+        for (const m of data.messages) renderCard(m);
+      } catch {
+        errorEl.classList.remove('hidden');
+      }
+    };
+
+    // 字数统计
+    textEl.addEventListener('input', () => {
+      countEl.textContent = `${textEl.value.length} / 500`;
+    });
+
+    // 快捷表情插入
+    document.getElementById('gb-emojis')?.addEventListener('click', (e) => {
+      const btn = (e.target as HTMLElement).closest('.emoji-btn');
+      if (!btn) return;
+      textEl.value += btn.textContent ?? '';
+      textEl.dispatchEvent(new Event('input'));
+      textEl.focus();
+    });
+
+    // 提交
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const text = textEl.value.trim();
+      if (text.length < 2) return showTip('留言太短啦', false);
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = '发送中…';
+      try {
+        const res = await fetch('/api/guestbook', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({
+            name: nameEl.value.trim(),
+            text,
+            honeypot: honeypotEl.value,
+          }),
+        });
+        const data = (await res.json()) as {
+          ok: boolean;
+          error?: string;
+          message?: Msg;
+        };
+        if (!data.ok || !data.message) throw new Error(data.error || '发送失败');
+
+        renderCard(data.message, true);
+        emptyEl.classList.add('hidden');
+        errorEl.classList.add('hidden');
+        textEl.value = '';
+        countEl.textContent = '0 / 500';
+        showTip('留言成功，感谢足迹 ✦', true);
+      } catch (err) {
+        showTip((err as Error).message || '发送失败，请稍后再试', false);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = '留下足迹 ✦';
+      }
+    });
+
+    load();
+  </script>
+</Layout>
