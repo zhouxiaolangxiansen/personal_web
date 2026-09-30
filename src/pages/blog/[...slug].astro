@@ -1,6 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
+import Comments from '../../components/Comments.astro';
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog');
@@ -163,6 +164,9 @@ const readMinutes = Math.max(1, Math.round(cjkCount / 400 + enWordCount / 200));
           </button>
         </div>
       </div>
+
+      <!-- 评论区 -->
+      <Comments slug={post.id} />
 
       <div class="mt-16 flex justify-center">
         <a href="/blog" class="btn-ghost">← 回到文章列表</a>
