@@ -399,6 +399,7 @@ body {
   font-weight: 700;
   color: #f4f4f5;
   margin: 1.8rem 0 0.8rem;
+  scroll-margin-top: 6rem;
 }
 .prose-custom p {
   line-height: 1.9;
@@ -461,8 +462,36 @@ body {
 }
 .prose-custom img {
   border-radius: 1rem;
-  margin: 1.8rem 0;
+  margin: 0;
   width: 100%;
+}
+
+/* 图片题注 */
+.prose-custom figure {
+  margin: 1.8rem 0;
+}
+.prose-custom figcaption {
+  margin-top: 0.7rem;
+  text-align: center;
+  font-size: 0.8rem;
+  color: #8b8b95;
+  line-height: 1.6;
+}
+
+/* 左侧目录 */
+.toc-link {
+  color: #71717a;
+  padding: 0.3rem 0.6rem;
+  border-left: 2px solid transparent;
+}
+.toc-link:hover {
+  color: #fff;
+}
+.toc-active,
+.toc-active:hover {
+  color: #22d3ee;
+  border-left-color: #22d3ee;
+  background: rgba(34, 211, 238, 0.05);
 }
 .prose-custom hr {
   border: none;

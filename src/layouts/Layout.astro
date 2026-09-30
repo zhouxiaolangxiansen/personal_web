@@ -45,6 +45,8 @@ const {
       updateProgress();
 
       // 滚动渐显动画
+      // 注意：threshold 必须为 0 —— 长文章的单个容器可能高达数万像素，
+      // 屏幕只能显示其百分之几，若阈值 >0 会永远无法触发导致正文不可见
       const io = new IntersectionObserver(
         (entries) => {
           for (const e of entries) {
@@ -54,7 +56,7 @@ const {
             }
           }
         },
-        { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
+        { threshold: 0, rootMargin: '0px 0px -40px 0px' }
       );
       document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
 
