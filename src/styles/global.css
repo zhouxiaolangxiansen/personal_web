@@ -22,21 +22,19 @@
   --c-reading-bg: rgba(10, 10, 22, 0.72);
 }
 
-/* ============ 白天模式 ============ */
-[data-theme="light"] {
-  --c-bg: #f5f3ee;
+/* ============ 浅色系主题共用（白天/早晨/正午/异国风情）============ */
+[data-theme="light"],
+[data-theme="morning"],
+[data-theme="noon"],
+[data-theme="exotic"] {
   --c-text: #3f3f46;
   --c-text-soft: #4b4b52;
   --c-text-muted: #6e6e76;
   --c-heading: #18181b;
-  --c-accent: #0e7490;
   --c-accent-hover: #6d28d9;
-  --c-card-bg: rgba(255, 255, 255, 0.65);
   --c-card-border: rgba(0, 0, 0, 0.08);
-  --c-nav-bg: rgba(245, 243, 238, 0.75);
   --c-dot-bg: #ffffff;
-  --c-code-bg: #f4f2ec;
-  --c-reading-bg: rgba(255, 255, 255, 0.82);
+  --c-code-bg: #f6f4ee;
 
   /* 反转 Tailwind 常用白色/灰阶文字，保证浅底上的可读性 */
   --color-white: #18181b;
@@ -59,28 +57,86 @@
   --color-amber-300: #b45309;
 }
 
-/* 白天隐藏夜间特效 */
-[data-theme="light"] .starfield,
-[data-theme="light"] .aurora-blob,
-[data-theme="light"] .cursor-glow,
-[data-theme="light"] #particles-canvas {
+/* 白天：米白纸感 */
+[data-theme="light"] {
+  --c-bg: #f5f3ee;
+  --c-accent: #0e7490;
+  --c-card-bg: rgba(255, 255, 255, 0.65);
+  --c-nav-bg: rgba(245, 243, 238, 0.75);
+  --c-reading-bg: rgba(255, 255, 255, 0.82);
+}
+
+/* 早晨：雾霭山色 */
+[data-theme="morning"] {
+  --c-bg: linear-gradient(180deg, #dcebe4 0%, #eef4ef 70%, #f4f7f3 100%);
+  --c-accent: #0f766e;
+  --c-card-bg: rgba(255, 255, 255, 0.6);
+  --c-nav-bg: rgba(238, 244, 239, 0.78);
+  --c-reading-bg: rgba(255, 255, 255, 0.8);
+}
+
+/* 正午：阳光沙滩 */
+[data-theme="noon"] {
+  --c-bg: linear-gradient(180deg, #bfe4ff 0%, #e9f5ff 55%, #ffefc9 100%);
+  --c-accent: #0369a1;
+  --c-card-bg: rgba(255, 255, 255, 0.65);
+  --c-nav-bg: rgba(233, 245, 255, 0.78);
+  --c-reading-bg: rgba(255, 255, 255, 0.82);
+}
+
+/* 傍晚：落日晚霞（深色系，文字保持浅色） */
+[data-theme="dusk"] {
+  --c-bg: linear-gradient(180deg, #1f1230 0%, #4a1e42 45%, #b4502a 78%, #f3a05f 100%);
+  --c-text: #f7ecdf;
+  --c-text-soft: #edd9c5;
+  --c-text-muted: #c9a890;
+  --c-heading: #fff4e6;
+  --c-accent: #fbbf24;
+  --c-accent-hover: #f472b6;
+  --c-card-bg: rgba(60, 26, 48, 0.55);
+  --c-card-border: rgba(255, 200, 150, 0.15);
+  --c-nav-bg: rgba(31, 18, 48, 0.6);
+  --c-dot-bg: #2a1626;
+  --c-code-bg: #2a1626;
+  --c-reading-bg: rgba(43, 20, 38, 0.6);
+}
+
+/* 异国风情：北欧牧场 */
+[data-theme="exotic"] {
+  --c-bg: linear-gradient(180deg, #c9ecfb 0%, #dff2d2 50%, #c3ec9e 100%);
+  --c-accent: #15803d;
+  --c-card-bg: rgba(255, 255, 255, 0.6);
+  --c-nav-bg: rgba(223, 242, 210, 0.78);
+  --c-reading-bg: rgba(255, 255, 255, 0.8);
+}
+
+/* 特效只在黑夜里出现（星空/极光/粒子/光晕） */
+.starfield,
+.aurora-blob,
+.cursor-glow,
+#particles-canvas {
   display: none;
 }
-
-/* 白天模式下独立切换按钮的配色 */
-[data-theme="light"] .theme-toggle-float {
-  border-color: rgba(0, 0, 0, 0.12);
-  background: rgba(255, 255, 255, 0.6);
-  color: #6d6d76;
+[data-theme="dark"] .starfield,
+[data-theme="dark"] .aurora-blob,
+[data-theme="dark"] .cursor-glow,
+[data-theme="dark"] #particles-canvas {
+  display: block;
 }
 
-/* 白天滚动条 */
-[data-theme="light"] ::-webkit-scrollbar-track {
+/* 浅色系滚动条 */
+[data-theme="light"] ::-webkit-scrollbar-track,
+[data-theme="morning"] ::-webkit-scrollbar-track,
+[data-theme="noon"] ::-webkit-scrollbar-track,
+[data-theme="exotic"] ::-webkit-scrollbar-track {
   background: #ece9e2;
 }
 
-/* 白天渐变文字换用深色 */
-[data-theme="light"] .text-gradient {
+/* 浅色系渐变文字换用深色 */
+[data-theme="light"] .text-gradient,
+[data-theme="morning"] .text-gradient,
+[data-theme="noon"] .text-gradient,
+[data-theme="exotic"] .text-gradient {
   background: linear-gradient(90deg, #7c3aed, #0e7490, #db2777, #7c3aed);
   background-size: 300% 100%;
   -webkit-background-clip: text;
@@ -89,30 +145,28 @@
   animation: gradient-flow 8s linear infinite;
 }
 
-/* 导航外壳（昼夜两用背景） */
+/* 傍晚渐变文字：暖色晚霞 */
+[data-theme="dusk"] .text-gradient {
+  background: linear-gradient(90deg, #fbbf24, #f472b6, #fdba74, #fbbf24);
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: gradient-flow 8s linear infinite;
+}
+
+/* 导航外壳（各主题通用背景） */
 .nav-shell {
   background: var(--c-nav-bg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
 }
 
-/* 主题切换按钮图标 */
-.theme-icon-sun {
-  display: none;
-}
-[data-theme="light"] .theme-icon-sun {
-  display: block;
-}
-[data-theme="light"] .theme-icon-moon {
-  display: none;
-}
-
 /* ============ 基础 ============ */
 html {
-  /* 底色放在 html 上，让负 z-index 的星空层能显示出来 */
-  background-color: var(--c-bg);
+  /* 底色放在 html 上，让负 z-index 的星空/场景层能显示出来（支持渐变） */
+  background: var(--c-bg);
   scroll-behavior: smooth;
-  transition: background-color 0.4s ease;
 }
 
 body {

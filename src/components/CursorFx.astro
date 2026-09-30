@@ -1,0 +1,196 @@
+<div class="cursor-fx" aria-hidden="true">
+  <canvas id="cursor-fx-canvas"></canvas>
+</div>
+
+<style is:global>
+  .cursor-fx {
+    position: fixed;
+    inset: 0;
+    z-index: 45;
+    pointer-events: none;
+    display: none;
+  }
+  [data-theme="dusk"] .cursor-fx,
+  [data-theme="noon"] .cursor-fx {
+    display: block;
+  }
+
+  /* 正午主题：鼠标指针替换为太阳（画布绘制） */
+  [data-theme="noon"] body,
+  [data-theme="noon"] a,
+  [data-theme="noon"] button,
+  [data-theme="noon"] .chip,
+  [data-theme="noon"] .ts-btn,
+  [data-theme="noon"] .ts-item {
+    cursor: none;
+  }
+</style>
+
+<script>
+  // ===== 主题专属鼠标特效 =====
+  // 傍晚：橘黄晚霞飘带跟随鼠标
+  // 正午：太阳光标（缓动跟随 + 旋转光芒）
+  const canvas = document.getElementById('cursor-fx-canvas') as HTMLCanvasElement;
+  const ctx = canvas.getContext('2d')!;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  let w = 0;
+  let h = 0;
+  let mode: 'dusk' | 'noon' | '' = '';
+  let rafId = 0;
+
+  const mouse = { x: -999, y: -999 };
+  const sun = { x: -999, y: -999 }; // 正午太阳的缓动位置
+  const ribbon: { x: number; y: number; t: number }[] = []; // 飘带轨迹点
+
+  const currentMode = (): 'dusk' | 'noon' | '' => {
+    const t = document.documentElement.dataset.theme;
+    if (t === 'dusk') return 'dusk';
+    if (t === 'noon') return 'noon';
+    return '';
+  };
+
+  function resize() {
+    w = window.innerWidth;
+    h = window.innerHeight;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    canvas.style.width = `${w}px`;
+    canvas.style.height = `${h}px`;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  function stop() {
+    if (rafId) cancelAnimationFrame(rafId);
+    rafId = 0;
+    ctx.clearRect(0, 0, w, h);
+    ribbon.length = 0;
+  }
+
+  function start() {
+    if (reduced || !mode || rafId) return;
+    const loop = (now: number) => {
+      if (!mode) return stop();
+      ctx.clearRect(0, 0, w, h);
+
+      if (mode === 'dusk') drawRibbon(now);
+      if (mode === 'noon') drawSun(now);
+
+      rafId = requestAnimationFrame(loop);
+    };
+    rafId = requestAnimationFrame(loop);
+  }
+
+  // ---- 傍晚：晚霞飘带 ----
+  function drawRibbon(now: number) {
+    ribbon.push({ x: mouse.x, y: mouse.y, t: now });
+    const LIFE = 620;
+    while (ribbon.length > 0 && now - ribbon[0]!.t > LIFE) ribbon.shift();
+    if (ribbon.length > 90) ribbon.splice(0, ribbon.length - 90);
+
+    for (let i = 1; i < ribbon.length; i++) {
+      const p0 = ribbon[i - 1]!;
+      const p1 = ribbon[i]!;
+      const age = now - p1.t;
+      const a = Math.max(0, 1 - age / LIFE); // 1=头部 0=尾部
+      // 飘带上下摆动（正弦波），越接近尾部摆幅越大
+      const sway = Math.sin(now / 170 + i * 0.55) * 4 * (1 - a);
+      const sway0 = Math.sin(now / 170 + (i - 1) * 0.55) * 4 * (1 - a);
+
+      ctx.beginPath();
+      ctx.moveTo(p0.x, p0.y + sway0);
+      ctx.lineTo(p1.x, p1.y + sway);
+      ctx.strokeStyle = `rgba(251, 146, 60, ${a * 0.75})`;
+      ctx.lineWidth = 1.5 + 8 * a;
+      ctx.lineCap = 'round';
+      ctx.stroke();
+
+      // 飘带上叠加一层淡金色高光
+      ctx.beginPath();
+      ctx.moveTo(p0.x, p0.y + sway0);
+      ctx.lineTo(p1.x, p1.y + sway);
+      ctx.strokeStyle = `rgba(255, 232, 176, ${a * 0.35})`;
+      ctx.lineWidth = 0.8 + 3 * a;
+      ctx.stroke();
+    }
+
+    // 头部光晕
+    if (mouse.x > -100) {
+      const g = ctx.createRadialGradient(mouse.x, mouse.y, 0, mouse.x, mouse.y, 34);
+      g.addColorStop(0, 'rgba(255, 237, 190, 0.55)');
+      g.addColorStop(1, 'rgba(251, 146, 60, 0)');
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(mouse.x, mouse.y, 34, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  // ---- 正午：太阳光标 ----
+  function drawSun(now: number) {
+    // 缓动跟随
+    if (sun.x < -100) {
+      sun.x = mouse.x;
+      sun.y = mouse.y;
+    }
+    sun.x += (mouse.x - sun.x) * 0.32;
+    sun.y += (mouse.y - sun.y) * 0.32;
+
+    const x = sun.x;
+    const y = sun.y;
+    const angle = now / 900;
+
+    // 光晕
+    const g = ctx.createRadialGradient(x, y, 0, x, y, 46);
+    g.addColorStop(0, 'rgba(252, 211, 77, 0.5)');
+    g.addColorStop(1, 'rgba(251, 191, 36, 0)');
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(x, y, 46, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 旋转的光芒
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(angle);
+    ctx.strokeStyle = 'rgba(245, 158, 11, 0.85)';
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    for (let i = 0; i < 12; i++) {
+      const a = (i * Math.PI) / 6;
+      ctx.beginPath();
+      ctx.moveTo(Math.cos(a) * 14, Math.sin(a) * 14);
+      ctx.lineTo(Math.cos(a) * 21, Math.sin(a) * 21);
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    // 太阳核心
+    ctx.beginPath();
+    ctx.arc(x, y, 9, 0, Math.PI * 2);
+    ctx.fillStyle = '#fcd34d';
+    ctx.fill();
+    ctx.strokeStyle = '#f59e0b';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  }
+
+  window.addEventListener('mousemove', (e) => {
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
+  });
+  window.addEventListener('resize', resize);
+
+  const applyTheme = () => {
+    const next = currentMode();
+    if (next === mode) return;
+    mode = next;
+    stop();
+    start();
+  };
+
+  window.addEventListener('theme-change', applyTheme);
+  resize();
+  applyTheme();
+</script>

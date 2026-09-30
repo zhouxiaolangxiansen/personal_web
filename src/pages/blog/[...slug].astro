@@ -240,22 +240,25 @@ const readMinutes = Math.max(1, Math.round(cjkCount / 400 + enWordCount / 200));
     // 注意：Astro/Shiki 渲染的代码块标识是 pre[data-language="mermaid"]，没有 language-mermaid 类
     import mermaid from 'mermaid';
 
-    const mmdThemeVars = (theme: string) => ({
+    const mmdThemeVars = (light: boolean) => ({
       background: 'transparent',
-      primaryColor: theme === 'light' ? '#ede9fe' : '#2a1a4a',
-      primaryTextColor: theme === 'light' ? '#18181b' : '#fff',
-      primaryBorderColor: theme === 'light' ? '#7c3aed' : '#8b5cf6',
-      lineColor: theme === 'light' ? '#0e7490' : '#22d3ee',
-      secondaryColor: theme === 'light' ? '#e0f2fe' : '#0e3a4a',
-      tertiaryColor: theme === 'light' ? '#fce7f3' : '#3a1a2e',
+      primaryColor: light ? '#ede9fe' : '#2a1a4a',
+      primaryTextColor: light ? '#18181b' : '#fff',
+      primaryBorderColor: light ? '#7c3aed' : '#8b5cf6',
+      lineColor: light ? '#0e7490' : '#22d3ee',
+      secondaryColor: light ? '#e0f2fe' : '#0e3a4a',
+      tertiaryColor: light ? '#fce7f3' : '#3a1a2e',
     });
 
     const renderMmd = async (source: string) => {
-      const theme = document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
+      // 浅色系主题（白天/早晨/正午/异国）用 light，黑夜/傍晚用 dark
+      const lightThemes = ['light', 'morning', 'noon', 'exotic'];
+      const light = lightThemes.includes(document.documentElement.dataset.theme ?? 'dark');
+      const theme = light ? 'light' : 'dark';
       mermaid.initialize({
         startOnLoad: false,
         theme,
-        themeVariables: mmdThemeVars(theme),
+        themeVariables: mmdThemeVars(light),
         fontFamily: 'PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif',
       });
       return mermaid.render(`mmd-${Math.random().toString(36).slice(2)}`, source);
