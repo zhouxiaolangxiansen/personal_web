@@ -30,7 +30,12 @@ const { slug } = Astro.props;
         ></textarea>
         <!-- 蜜罐：人类看不见，机器人会填 -->
         <input type="text" class="cm-honeypot hidden" tabindex="-1" autocomplete="off" aria-hidden="true" />
-        <div class="flex justify-end">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div class="flex flex-wrap gap-1.5 cm-emojis">
+            {['😊', '🎉', '🌸', '🍺', '📷', '👍'].map((e) => (
+              <button type="button" class="emoji-btn text-lg transition-transform duration-200 hover:scale-125">{e}</button>
+            ))}
+          </div>
           <button type="submit" class="cm-submit btn-primary text-sm">发表评论</button>
         </div>
       </div>
@@ -51,6 +56,14 @@ const { slug } = Astro.props;
 </section>
 
 <style>
+  .emoji-btn {
+    padding: 0.25rem 0.4rem;
+    border-radius: 0.5rem;
+    border: 1px solid transparent;
+  }
+  .emoji-btn:hover {
+    background: rgba(255, 255, 255, 0.06);
+  }
   .cm-card {
     animation: cm-pop 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
@@ -135,6 +148,14 @@ const { slug } = Astro.props;
         errorEl.classList.remove('hidden');
       }
     };
+
+    // 快捷表情插入
+    form.querySelector('.cm-emojis')?.addEventListener('click', (e) => {
+      const btn = (e.target as HTMLElement).closest('.emoji-btn');
+      if (!btn) return;
+      textEl.value += btn.textContent ?? '';
+      textEl.focus();
+    });
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
