@@ -47,11 +47,17 @@ const clean = (s: unknown, max: number): string =>
     .trim()
     .slice(0, max);
 
-// slug 白名单校验：只允许字母数字下划线连字符（防止路径穿越）
+// slug 白名单校验：允许中英文等各类文字、数字，以及 - _ . /（子目录）
+// 禁止 ".."，防止路径穿越
 const validSlug = (s: unknown): string | null => {
   const slug = clean(s, 100);
-  return /^[A-Za-z0-9_-]+$/.test(slug) ? slug : null;
+  if (!slug || slug.includes('..')) return null;
+  return /^[\p{L}\p{N}._/-]+$/u.test(slug) ? slug : null;
 };
+
+// slug → R2 存储目录：百分号编码后中文等字符变成 %XX，key 里只剩安全字符。
+// ASCII slug（如 chuanxi-trip）编码前后完全一致，已有评论数据不受影响。
+const prefixOf = (slug: string) => `comments/${encodeURIComponent(slug)}/`;
 
 type Handler = (ctx: {
   request: Request;
@@ -71,7 +77,7 @@ export const onRequestGet: Handler = async ({ request, env }) => {
   const slug = getSlug(request);
   if (!slug) return json({ ok: false, error: '文章参数错误' }, 400);
 
-  const prefix = `comments/${slug}/`;
+  const prefix = prefixOf(slug);
   const listed = await env.GUESTBOOK.list({ prefix, limit: 1000 });
   const keys = listed.objects.map((o) => o.key).sort().reverse();
 
@@ -117,7 +123,7 @@ export const onRequestPost: Handler = async ({ request, env }) => {
 
   // 同 IP 限频：检查该文章最近的评论
   const ip = request.headers.get('cf-connecting-ip') ?? 'unknown';
-  const prefix = `comments/${slug}/`;
+  const prefix = prefixOf(slug);
   const listed = await env.GUESTBOOK.list({ prefix, limit: 1000 });
   const recentKeys = listed.objects.map((o) => o.key).sort().reverse().slice(0, 5);
   for (const key of recentKeys) {
