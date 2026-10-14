@@ -11,6 +11,10 @@ const posts = allPosts.slice(0, 3);
 const fmt = (d: Date) =>
   d.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
 
+// 缩略图：优先用 frontmatter 的 cover，没写就从正文里挑第一张图
+const coverOf = (post: (typeof allPosts)[number]): string | null =>
+  post.data.cover ?? post.body?.match(/!\[[^\]]*\]\((\S+?)\)/)?.[1] ?? null;
+
 const allPhotos = (await getCollection('photos')).sort(
   (a, b) => a.data.order - b.data.order
 );
@@ -131,9 +135,9 @@ const postGrid =
             style={`--d:${i * 0.1}s`}
           >
             <div class="overflow-hidden">
-              {post.data.cover && (
+              {coverOf(post) && (
                 <img
-                  src={post.data.cover}
+                  src={coverOf(post)}
                   alt={post.data.title}
                   class="aspect-[16/9] w-full object-cover transition-transform duration-700 group-hover:scale-110"
                   width="800"
