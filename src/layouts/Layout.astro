@@ -3,6 +3,7 @@ import '../styles/global.css';
 import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
 import Starfield from '../components/Starfield.astro';
+import DayField from '../components/DayField.astro';
 import ThemeSwitcher from '../components/ThemeSwitcher.astro';
 import Backdrop from '../components/Backdrop.astro';
 import CursorFx from '../components/CursorFx.astro';
@@ -38,6 +39,7 @@ const {
   </head>
   <body id="top">
     <Starfield />
+    <DayField />
     <Backdrop />
     <div class="cursor-glow" id="cursor-glow" aria-hidden="true"></div>
     <CursorFx />

@@ -117,11 +117,25 @@
 #particles-canvas {
   display: none;
 }
+
 [data-theme="dark"] .starfield,
 [data-theme="dark"] .aurora-blob,
 [data-theme="dark"] .cursor-glow,
 [data-theme="dark"] #particles-canvas {
   display: block;
+}
+
+/* 白天专属：阳光尘埃 / 云影（星空那套在浅底上不适用） */
+.dayfield {
+  display: none;
+}
+[data-theme="light"] .dayfield {
+  display: block;
+}
+/* 悬停在白天光斑上时显示手型光标 */
+body.df-pointer,
+body.df-pointer * {
+  cursor: pointer;
 }
 
 /* 浅色系滚动条 */

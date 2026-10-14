@@ -101,13 +101,7 @@ const readMinutes = Math.max(1, Math.round(cjkCount / 400 + enWordCount / 200));
         <p class="reveal mt-4 leading-relaxed text-zinc-400" style="--d:.2s">{post.data.description}</p>
       </header>
 
-      {
-        post.data.cover && (
-          <div class="reveal mt-10 overflow-hidden rounded-2xl border border-white/10" style="--d:.2s">
-            <img src={post.data.cover} alt={post.data.title} class="w-full object-cover" width="1024" height="683" />
-          </div>
-        )
-      }
+      <!-- 封面图只用于外层列表/首页缩略图，文章正文内不再重复展示 -->
 
       <div class="prose-custom reveal mt-4" style="--d:.25s">
         <Content />

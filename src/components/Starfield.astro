@@ -270,8 +270,11 @@
       'a, button, input, textarea, select, video, label, nav, img, figure'
     ) == null;
 
+  // 星空只在黑夜主题出现：其他主题下不抢点击、不改光标（白天交给 DayField）
+  const isDark = () => (document.documentElement.dataset.theme ?? 'dark') === 'dark';
+
   window.addEventListener('click', (e) => {
-    if (reduced || !interactiveTarget(e.target)) return;
+    if (reduced || !isDark() || !interactiveTarget(e.target)) return;
     const mx = e.clientX;
     const my = e.clientY;
     for (const b of brights) {
@@ -288,7 +291,10 @@
   window.addEventListener(
     'mousemove',
     (e) => {
-      if (reduced) return;
+      if (reduced || !isDark()) {
+        document.body.style.cursor = '';
+        return;
+      }
       const near = brights.some(
         (b) =>
           b.respawnAt === 0 && Math.hypot(e.clientX - b.x, e.clientY - b.y) <= HIT_R

@@ -1,0 +1,346 @@
+<div class="dayfield" aria-hidden="true">
+  <canvas id="dayfield-canvas"></canvas>
+</div>
+
+<script>
+  // ===== 白天主题专属背景：阳光尘埃 + 缓慢云影 + 可点击光斑 =====
+  const canvas = document.getElementById('dayfield-canvas') as HTMLCanvasElement;
+  const ctx = canvas.getContext('2d')!;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  let w = 0;
+  let h = 0;
+
+  /** 阳光里缓缓上浮的浮尘 */
+  interface Mote {
+    x: number;
+    y: number;
+    r: number;
+    vy: number;
+    ph: number;
+    ps: number;
+    a: number;
+    color: string;
+  }
+
+  /** 横向飘过的柔和云影 */
+  interface Cloud {
+    x: number;
+    y: number;
+    rx: number;
+    ry: number;
+    vx: number;
+    a: number;
+  }
+
+  /** 可点击的光斑：点一下炸开成小光点，随后在别处重生 */
+  interface Orb {
+    x: number;
+    y: number;
+    r: number;
+    hue: number;
+    tw: number;
+    respawnAt: number; // 为 0 表示存活中
+    born: number; // 出生时间，用于淡入
+  }
+
+  /** 光斑炸开后的小光点 */
+  interface Spark {
+    x: number;
+    y: number;
+    vx: number;
+    vy: number;
+    life: number;
+    maxLife: number;
+    hue: number;
+  }
+
+  let motes: Mote[] = [];
+  let clouds: Cloud[] = [];
+  let orbs: Orb[] = [];
+  let sparks: Spark[] = [];
+
+  // 浅底上要压低对比度：只用暖沙色/暗驼/藕粉，透明度很低
+  const moteColors = ['196, 154, 108', '214, 178, 128', '198, 148, 140'];
+
+  const rand = (min: number, max: number) => min + Math.random() * (max - min);
+  const isLight = () =>
+    (document.documentElement.dataset.theme ?? 'dark') === 'light';
+
+  function newOrb(): Orb {
+    // 避开正文区域：文章页只出现在文章列左右两侧的留白中
+    const art = document.querySelector('main article');
+    let x = rand(w * 0.05, w * 0.95);
+    if (art && w > 900) {
+      const r = art.getBoundingClientRect();
+      const left = r.left - 40;
+      const right = r.right + 40;
+      const leftSpace = left;
+      const rightSpace = w - right;
+      if (leftSpace > 120 && rightSpace > 120) {
+        x =
+          Math.random() < leftSpace / (leftSpace + rightSpace)
+            ? rand(12, left - 12)
+            : rand(right + 12, w - 12);
+      } else if (leftSpace > 120) {
+        x = rand(12, left - 12);
+      } else if (rightSpace > 120) {
+        x = rand(right + 12, w - 12);
+      }
+    }
+    return {
+      x,
+      y: rand(h * 0.08, h * 0.85),
+      r: rand(2.6, 3.8),
+      hue: [38, 45, 28, 340][Math.floor(Math.random() * 4)]!, // 金/琥珀/橙/暖粉
+      tw: Math.random() * Math.PI * 2,
+      respawnAt: 0,
+      born: performance.now(),
+    };
+  }
+
+  function resize() {
+    w = window.innerWidth;
+    h = window.innerHeight;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    canvas.style.width = `${w}px`;
+    canvas.style.height = `${h}px`;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    motes = Array.from({ length: Math.min(140, Math.floor((w * h) / 15000)) }, () => ({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      r: rand(0.4, 1.7),
+      vy: rand(-0.22, -0.06),
+      ph: Math.random() * Math.PI * 2,
+      ps: rand(0.004, 0.014),
+      a: rand(0.12, 0.32),
+      color: moteColors[Math.floor(Math.random() * moteColors.length)]!,
+    }));
+
+    clouds = Array.from({ length: 3 }, () => ({
+      x: rand(-w * 0.3, w),
+      y: rand(h * 0.06, h * 0.78),
+      rx: rand(180, 380),
+      ry: rand(50, 110),
+      vx: rand(0.05, 0.16),
+      a: rand(0.045, 0.085),
+    }));
+
+    orbs = Array.from({ length: 3 }, () => newOrb());
+    sparks = [];
+  }
+
+  function burst(x: number, y: number, hue: number) {
+    const n = 12 + Math.floor(Math.random() * 6);
+    for (let i = 0; i < n; i++) {
+      const angle = (i / n) * Math.PI * 2 + rand(-0.2, 0.2);
+      const speed = rand(0.8, 2.4);
+      sparks.push({
+        x,
+        y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - 0.2,
+        life: 0,
+        maxLife: rand(45, 80),
+        hue: hue + rand(-12, 12),
+      });
+    }
+  }
+
+  // 右上角暖阳光晕：极缓慢地呼吸
+  function drawSun(t: number) {
+    const cx = w * 0.84;
+    const cy = -h * 0.12;
+    const radius = Math.max(w, h) * 0.65;
+    const pulse = 0.5 + 0.5 * Math.sin(t / 4200);
+    const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
+    g.addColorStop(0, `rgba(255, 231, 184, ${0.26 + 0.08 * pulse})`);
+    g.addColorStop(0.45, `rgba(255, 240, 210, ${0.08 + 0.04 * pulse})`);
+    g.addColorStop(1, 'rgba(255, 240, 210, 0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, w, h);
+  }
+
+  function drawCloud(c: Cloud) {
+    ctx.save();
+    ctx.translate(c.x, c.y);
+    ctx.scale(1, c.ry / c.rx);
+    const g = ctx.createRadialGradient(0, 0, 0, 0, 0, c.rx);
+    g.addColorStop(0, `rgba(122, 108, 86, ${c.a})`);
+    g.addColorStop(0.55, `rgba(122, 108, 86, ${c.a * 0.45})`);
+    g.addColorStop(1, 'rgba(122, 108, 86, 0)');
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(0, 0, c.rx, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function drawOrb(o: Orb, t: number) {
+    o.tw += 0.03;
+    const bornFade = Math.min(1, (t - o.born) / 600);
+    const pulse = 0.6 + 0.4 * Math.sin(o.tw);
+    const alpha = bornFade * pulse;
+
+    // 暖光晕
+    const glow = ctx.createRadialGradient(o.x, o.y, 0, o.x, o.y, o.r * 6);
+    glow.addColorStop(0, `hsla(${o.hue}, 90%, 62%, ${0.34 * alpha})`);
+    glow.addColorStop(1, 'hsla(0, 0%, 100%, 0)');
+    ctx.beginPath();
+    ctx.arc(o.x, o.y, o.r * 6, 0, Math.PI * 2);
+    ctx.fillStyle = glow;
+    ctx.fill();
+
+    // 四芒光芒
+    ctx.save();
+    ctx.translate(o.x, o.y);
+    ctx.strokeStyle = `hsla(${o.hue}, 85%, 58%, ${0.55 * alpha})`;
+    ctx.lineWidth = 1;
+    const len = o.r * (3 + Math.sin(o.tw * 1.5) * 0.6);
+    for (let i = 0; i < 4; i++) {
+      const a = (i * Math.PI) / 2 + Math.PI / 4;
+      ctx.beginPath();
+      ctx.moveTo(Math.cos(a) * o.r, Math.sin(a) * o.r);
+      ctx.lineTo(Math.cos(a) * len, Math.sin(a) * len);
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    // 光核
+    ctx.beginPath();
+    ctx.arc(o.x, o.y, o.r, 0, Math.PI * 2);
+    ctx.fillStyle = `hsla(${o.hue}, 95%, 64%, ${0.85 * alpha})`;
+    ctx.fill();
+  }
+
+  function draw(t: number) {
+    ctx.clearRect(0, 0, w, h);
+
+    // 非白天主题：清空即可（画布虽隐藏，仍清掉避免切换瞬间残留）
+    if (!isLight()) return;
+
+    drawSun(t);
+
+    for (const c of clouds) {
+      c.x += c.vx;
+      if (c.x - c.rx > w + 100) {
+        c.x = -c.rx - 100;
+        c.y = rand(h * 0.06, h * 0.78);
+      }
+      drawCloud(c);
+    }
+
+    for (const m of motes) {
+      m.ph += m.ps;
+      m.y += m.vy;
+      if (m.y < -10) {
+        m.y = h + 10;
+        m.x = Math.random() * w;
+      }
+      const x = m.x + Math.sin(m.ph) * 8;
+      const alpha = m.a * (0.55 + 0.45 * Math.sin(m.ph * 1.7));
+      ctx.beginPath();
+      ctx.arc(x, m.y, m.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${m.color}, ${alpha})`;
+      ctx.fill();
+    }
+
+    for (const o of orbs) {
+      if (o.respawnAt > 0) {
+        if (t >= o.respawnAt) Object.assign(o, newOrb(), { respawnAt: 0 });
+        continue;
+      }
+      drawOrb(o, t);
+    }
+
+    for (let i = sparks.length - 1; i >= 0; i--) {
+      const s = sparks[i]!;
+      s.x += s.vx;
+      s.y += s.vy;
+      s.vx *= 0.975;
+      s.vy = s.vy * 0.975 - 0.012; // 微微上浮，像被阳光托着
+      s.life++;
+      const fade = 1 - s.life / s.maxLife;
+      if (fade <= 0) {
+        sparks.splice(i, 1);
+        continue;
+      }
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, 1.6, 0, Math.PI * 2);
+      ctx.fillStyle = `hsla(${s.hue}, 90%, 60%, ${0.7 * fade})`;
+      ctx.fill();
+    }
+  }
+
+  // ===== 光斑交互：点击炸开成一簇小光点 =====
+  const HIT_R = 22;
+
+  const interactiveTarget = (el: EventTarget | null) =>
+    (el as HTMLElement | null)?.closest(
+      'a, button, input, textarea, select, video, label, nav, img, figure'
+    ) == null;
+
+  window.addEventListener('click', (e) => {
+    if (reduced || !isLight() || !interactiveTarget(e.target)) return;
+    const mx = e.clientX;
+    const my = e.clientY;
+    for (const o of orbs) {
+      if (o.respawnAt > 0) continue;
+      if (Math.hypot(mx - o.x, my - o.y) <= HIT_R) {
+        burst(o.x, o.y, o.hue);
+        o.respawnAt = performance.now() + rand(4000, 8000); // 4~8 秒后重生
+        break;
+      }
+    }
+  });
+
+  // 悬停在光斑上时显示手型光标（用 class 避免与星空组件的行内样式打架）
+  window.addEventListener(
+    'mousemove',
+    (e) => {
+      if (reduced || !isLight()) {
+        document.body.classList.remove('df-pointer');
+        return;
+      }
+      const near = orbs.some(
+        (o) => o.respawnAt === 0 && Math.hypot(e.clientX - o.x, e.clientY - o.y) <= HIT_R
+      );
+      document.body.classList.toggle('df-pointer', near);
+    },
+    { passive: true }
+  );
+
+  window.addEventListener('resize', () => {
+    resize();
+    if (reduced) draw(performance.now());
+  });
+
+  // 减弱动效或切换主题时重绘一帧静态画面
+  window.addEventListener('theme-change', () => {
+    if (reduced) draw(performance.now());
+  });
+
+  resize();
+
+  if (reduced) {
+    draw(performance.now());
+  } else {
+    const loop = () => {
+      draw(performance.now());
+      requestAnimationFrame(loop);
+    };
+    requestAnimationFrame(loop);
+  }
+</script>
+
+<style>
+  .dayfield {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+  }
+</style>
