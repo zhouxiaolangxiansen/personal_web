@@ -109,24 +109,24 @@
     canvas.style.height = `${h}px`;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    motes = Array.from({ length: Math.min(140, Math.floor((w * h) / 15000)) }, () => ({
+    motes = Array.from({ length: Math.min(150, Math.floor((w * h) / 13000)) }, () => ({
       x: Math.random() * w,
       y: Math.random() * h,
-      r: rand(0.4, 1.7),
-      vy: rand(-0.22, -0.06),
+      r: rand(0.55, 2),
+      vy: rand(-0.24, -0.07),
       ph: Math.random() * Math.PI * 2,
-      ps: rand(0.004, 0.014),
-      a: rand(0.12, 0.32),
+      ps: rand(0.004, 0.015),
+      a: rand(0.16, 0.38),
       color: moteColors[Math.floor(Math.random() * moteColors.length)]!,
     }));
 
     clouds = Array.from({ length: 3 }, () => ({
       x: rand(-w * 0.3, w),
-      y: rand(h * 0.06, h * 0.78),
-      rx: rand(180, 380),
-      ry: rand(50, 110),
-      vx: rand(0.05, 0.16),
-      a: rand(0.045, 0.085),
+      y: rand(h * 0.05, h * 0.8),
+      rx: rand(200, 400),
+      ry: rand(60, 120),
+      vx: rand(0.07, 0.19),
+      a: rand(0.07, 0.12),
     }));
 
     orbs = Array.from({ length: 3 }, () => newOrb());
@@ -169,9 +169,9 @@
     ctx.translate(c.x, c.y);
     ctx.scale(1, c.ry / c.rx);
     const g = ctx.createRadialGradient(0, 0, 0, 0, 0, c.rx);
-    g.addColorStop(0, `rgba(122, 108, 86, ${c.a})`);
-    g.addColorStop(0.55, `rgba(122, 108, 86, ${c.a * 0.45})`);
-    g.addColorStop(1, 'rgba(122, 108, 86, 0)');
+    g.addColorStop(0, `rgba(115, 100, 78, ${c.a})`);
+    g.addColorStop(0.5, `rgba(115, 100, 78, ${c.a * 0.5})`);
+    g.addColorStop(1, 'rgba(115, 100, 78, 0)');
     ctx.fillStyle = g;
     ctx.beginPath();
     ctx.arc(0, 0, c.rx, 0, Math.PI * 2);
@@ -240,12 +240,23 @@
         m.y = h + 10;
         m.x = Math.random() * w;
       }
-      const x = m.x + Math.sin(m.ph) * 8;
+      const x = m.x + Math.sin(m.ph) * 10;
       const alpha = m.a * (0.55 + 0.45 * Math.sin(m.ph * 1.7));
       ctx.beginPath();
       ctx.arc(x, m.y, m.r, 0, Math.PI * 2);
       ctx.fillStyle = `rgba(${m.color}, ${alpha})`;
       ctx.fill();
+
+      // 稍大的尘粒补一层柔光，让它在纸面上"浮"起来
+      if (m.r > 1.8) {
+        const g = ctx.createRadialGradient(x, m.y, 0, x, m.y, m.r * 4);
+        g.addColorStop(0, `rgba(${m.color}, ${alpha * 0.22})`);
+        g.addColorStop(1, `rgba(${m.color}, 0)`);
+        ctx.beginPath();
+        ctx.arc(x, m.y, m.r * 4, 0, Math.PI * 2);
+        ctx.fillStyle = g;
+        ctx.fill();
+      }
     }
 
     for (const o of orbs) {

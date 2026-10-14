@@ -218,7 +218,8 @@ const postGrid =
         <div class="relative shrink-0" style="animation: float-y 7s ease-in-out infinite">
           <div class="absolute inset-0 rounded-full bg-gradient-to-br from-violet-500 to-cyan-400 opacity-40 blur-xl"></div>
           <div class="relative h-28 w-28 rounded-full bg-gradient-to-br from-violet-500 to-cyan-400 p-[3px]">
-            <div class="flex h-full w-full items-center justify-center rounded-full bg-[#12121f] font-serif text-4xl font-bold text-white">
+            <!-- 内圈底色固定深色，文字必须用固定白：浅色主题会把 --color-white 反转为深色，用 text-white 会看不见 -->
+            <div class="flex h-full w-full items-center justify-center rounded-full bg-[#12121f] font-serif text-4xl font-bold text-[#fafafa]">
               周
             </div>
           </div>
