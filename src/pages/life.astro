@@ -15,45 +15,14 @@ interface TimelineEvent {
 // 手动记录的生活事件（date 用于展示，sortDate 用于排序）
 const manualEvents: TimelineEvent[] = [
   {
-    date: '2026-09',
+    date: '2026-09-30',
     sortDate: '2026-09-30',
     tag: '里程碑',
     tagCls: 'border-violet-400/30 bg-violet-400/10 text-violet-300',
     title: '数字花园上线',
     text: '用 Astro + Cloudflare Pages 搭好了这个家，从布局到粒子特效全部亲手完成。',
   },
-  {
-    date: '2026-08',
-    sortDate: '2026-08-31',
-    tag: '摄影',
-    tagCls: 'border-pink-400/30 bg-pink-400/10 text-pink-300',
-    title: '第一次拍到银河',
-    text: '海拔 4200 米的湖边，凌晨两点的风把三脚架都吹歪了，好在快门没白按。',
-  },
-  {
-    date: '2026-06',
-    sortDate: '2026-06-30',
-    tag: '学习',
-    tagCls: 'border-cyan-400/30 bg-cyan-400/10 text-cyan-300',
-    title: '读完《多媒体学习》',
-    text: '重新理解了"图文互补"，顺手给博客的排版换了一套思路。',
-  },
-  {
-    date: '2026-03',
-    sortDate: '2026-03-31',
-    tag: '生活',
-    tagCls: 'border-emerald-400/30 bg-emerald-400/10 text-emerald-300',
-    title: '开始晨跑',
-    text: '从 2 公里气喘吁吁，到现在能轻松跑完 5 公里。原来坚持真的会上瘾。',
-  },
-  {
-    date: '2025-12',
-    sortDate: '2025-12-31',
-    tag: '旅行',
-    tagCls: 'border-amber-400/30 bg-amber-400/10 text-amber-300',
-    title: '川西跨年',
-    text: '在垭口看完了 2025 年的最后一缕阳光，许愿明年多出门走走。',
-  },
+  // 想加生活事件就往这个数组里追加一条，会按 sortDate 自动排进时间线
 ];
 
 // 博客文章自动进入时间线
