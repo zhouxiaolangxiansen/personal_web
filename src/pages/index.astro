@@ -3,31 +3,42 @@ import { getCollection } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
 import ParticleField from '../components/ParticleField.astro';
 
-const posts = (await getCollection('blog'))
-  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
-  .slice(0, 3);
+const allPosts = (await getCollection('blog')).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+const posts = allPosts.slice(0, 3);
 
 const fmt = (d: Date) =>
   d.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
 
-const photos = (await getCollection('photos'))
-  .sort((a, b) => a.data.order - b.data.order)
-  .slice(0, 4)
-  .map((p) => ({ src: p.data.src, title: p.data.title }));
+const allPhotos = (await getCollection('photos')).sort(
+  (a, b) => a.data.order - b.data.order
+);
+const photos = allPhotos.slice(0, 4).map((p) => ({ src: p.data.src, title: p.data.title }));
 
 const marqueeItems = ['写作', '摄影', '代码', '旅行', '阅读', '生活', '思考', '记录'];
 
-const gardenStart = new Date('2026-09-01');
+// 花园开垦日：站点上线日期，想改就改这一行
+const gardenStart = new Date('2026-09-30');
 const runningDays = Math.max(
   1,
   Math.ceil((Date.now() - gardenStart.getTime()) / 86400000)
 );
 
 const stats = [
-  { value: posts.length + 12, label: '篇文章', suffix: '' },
-  { value: 18, label: '张照片', suffix: '+' },
+  { value: allPosts.length, label: '篇文章', suffix: '' },
+  { value: allPhotos.length, label: '张照片', suffix: '' },
   { value: runningDays, label: '天持续生长', suffix: '' },
 ];
+
+// 文章不足 3 篇时换排版，避免网格里空出一格：
+// 3 篇→三列；2 篇→两列并收窄居中；1 篇→单张大卡居中
+const postGrid =
+  posts.length >= 3
+    ? 'mt-12 grid gap-6 md:grid-cols-3'
+    : posts.length === 2
+      ? 'mx-auto mt-12 grid max-w-4xl gap-6 md:grid-cols-2'
+      : 'mx-auto mt-12 grid max-w-lg gap-6';
 ---
 
 <Layout>
@@ -110,7 +121,7 @@ const stats = [
       </a>
     </div>
 
-    <div class="mt-12 grid gap-6 md:grid-cols-3">
+    <div class={postGrid}>
       {
         posts.map((post, i) => (
           <a
@@ -147,6 +158,11 @@ const stats = [
             </div>
           </a>
         ))
+      }
+      {
+        posts.length === 0 && (
+          <p class="mt-12 text-center text-sm text-zinc-500">还没有文章，第一篇正在生长中…</p>
+        )
       }
     </div>
   </section>

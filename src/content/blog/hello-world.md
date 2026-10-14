@@ -1,7 +1,7 @@
 ---
 title: '你好，世界：我的数字花园开垦记'
 description: '为什么要自己搭一个网站？聊聊这个花园的由来，以及我想在这里种下什么。'
-pubDate: 2026-09-20
+pubDate: 2026-09-30
 tags: ['随笔', '建站']
 cover: '/images/gallery/milkyway.jpg'
 ---
